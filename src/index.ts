@@ -1,5 +1,4 @@
-import sushiData from '@sushiswap/sushi-data';
-import shibaSwapData from '@shibaswap/shibaswap-data';
+import shibaSwapData from '@shibaswap/shibaswap-data-snoop';
 import { parseBalanceMap } from './parse-balance-map'
 
 import queries from './queries';
@@ -42,7 +41,8 @@ type Data = {
 export default async function getDistribution(options: Options) {
     options.startBlock = options.startBlock ?? VESTING_START;
     options.claimBlock = options.claimBlock ?? (await shibaSwapData.blocks.latestBlock()).number;
-
+    console.log("**************************")
+    console.log(options.claimBlock);
     // Fetch the data and redirect the addresses right away
     const data = redirect(await fetchData(options.startBlock, options.endBlock, options.claimBlock));
     const final = finalize(
@@ -71,6 +71,8 @@ async function fetchData(startBlock: number, endBlock: number, claimBlock: numbe
         queries.users(startBlock), queries.users(endBlock),
         queries.claims(claimBlock)
     ]);
+    console.log("###################################################");
+    console.log(infoBeginning, infoEnd, poolsBeginning, poolsEnd, usersBeginning, usersEnd, claimed);
 
     return ({
         beginning: {
@@ -111,10 +113,10 @@ function consolidate(data: DataPart, block: number) {
             .filter(u => u.poolId !== VESTING_POOL_ID)
 
         const pending = userPools.reduce((a, b) => {
-            return a + pendingSushi(block, totalAllocPoint, pools, b)
+            return a + pendingBone(block, totalAllocPoint, pools, b)
         }, 0)
 
-        const harvested = userPools.reduce((a, b) => a + b.sushiHarvested, 0);
+        const harvested = userPools.reduce((a, b) => a + b.boneHarvested, 0);
 
         return ({
             address: user.address,
@@ -188,8 +190,8 @@ function calculateTotalVested(data: Data, options: Options) {
     const vestedStart = data.beginning.users
         .filter(user => user.poolId === VESTING_POOL_ID)
         .map(user => {
-            const pending = pendingSushi(startBlock!, data.beginning.info.totalAllocPoint, data.beginning.pools, user);
-            const harvested = user.sushiHarvested;
+            const pending = pendingBone(startBlock!, data.beginning.info.totalAllocPoint, data.beginning.pools, user);
+            const harvested = user.boneHarvested;
             return pending + harvested;
         })
         .reduce((a, b) => a + b, 0);
@@ -197,8 +199,8 @@ function calculateTotalVested(data: Data, options: Options) {
     const vestedEnd = data.end.users
         .filter(user => user.poolId === VESTING_POOL_ID)
         .map(user => {
-            const pending = pendingSushi(endBlock, data.end.info.totalAllocPoint, data.end.pools, user);
-            const harvested = user.sushiHarvested;
+            const pending = pendingBone(endBlock, data.end.info.totalAllocPoint, data.end.pools, user);
+            const harvested = user.boneHarvested;
             return pending + harvested;
         })
         .reduce((a, b) => a + b, 0);
@@ -206,19 +208,21 @@ function calculateTotalVested(data: Data, options: Options) {
     return vestedEnd - vestedStart;
 }
 
-// Re-implementation of the pendingSushi function from Masterchef
-function pendingSushi(block: number, totalAllocPoint: number, pools: Pools, user: User) {
+// Re-implementation of the pendingBone function from Masterchef
+function pendingBone(block: number, totalAllocPoint: number, pools: Pools, user: User) {
     let poolId = user.poolId;
     let pool = pools.filter((entry) => entry.id === poolId ? true : false)[0]; // There's only going to be one
 
-    let accSushiPerShare = pool.accSushiPerShare;
-    if(block > pool.lastRewardBlock && pool.slpBalance !== 0) {
+    let accBonePerShare = pool.accBonePerShare;
+    if(block > pool.lastRewardBlock && pool.sslpBalance !== 0) {
         let multiplier = block - pool.lastRewardBlock;
-        let sushiReward = BigInt(Math.floor(multiplier * 100 * 1e18 * pool.allocPoint / totalAllocPoint));
-        accSushiPerShare = accSushiPerShare + sushiReward * BigInt(1e12) / BigInt(Math.floor(pool.slpBalance * 1e18));
+        console.log("************************")
+        console.log(multiplier, pool.allocPoint, totalAllocPoint);
+        let boneReward = BigInt(Math.floor(multiplier * 100 * 1e18 * pool.allocPoint / totalAllocPoint));
+        accBonePerShare = accBonePerShare + boneReward * BigInt(1e12) / BigInt(Math.floor(pool.sslpBalance * 1e18));
     }
 
     return Number(
-        (BigInt(user.amount) * accSushiPerShare - user.rewardDebt * BigInt(1e12)) / BigInt(1e12)
+        (BigInt(user.amount) * accBonePerShare - user.rewardDebt * BigInt(1e12)) / BigInt(1e12)
     ) / 1e18;
 }

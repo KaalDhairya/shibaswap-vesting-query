@@ -1,4 +1,4 @@
-export const VESTING_START = 10959148;
+export const VESTING_START = 24437219; //10959148;
 
 export const VESTING_POOL_ID = 1; // 29
 // export const SHIBASWAP_VESTING_POOL_ID = 1;

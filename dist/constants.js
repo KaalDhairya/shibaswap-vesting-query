@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.alchemyKey = exports.etherscanKey = exports.MULTISIGS = exports.VESTING_POOL_ID = exports.VESTING_START = void 0;
-exports.VESTING_START = 10959148;
-exports.VESTING_POOL_ID = 29;
+exports.VESTING_START = 24437219; //10959148;
+exports.VESTING_POOL_ID = 1; // 29
+// export const SHIBASWAP_VESTING_POOL_ID = 1;
 exports.MULTISIGS = [
     "0xaa394e08c74e2b2f76ff000adeb25f20423cfe2a",
     "0x4a25e18076ddcfd646ed14abc07286c2a4c1256a",

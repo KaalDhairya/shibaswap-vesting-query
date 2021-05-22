@@ -1,17 +1,11 @@
-import sushiData from '@sushiswap/sushi-data'
-import shibaSwapData from '@shibaswap/shibaswap-data'
+import shibaSwapData from '@shibaswap/shibaswap-data-snoop'
 
-
-// type Info = sushiData.masterchef.Info;
 type Info = shibaSwapData.topdog.Info;
 
-// type Pools = sushiData.masterchef.Pool[];
 type Pools = shibaSwapData.topdog.Pool[];
 
-// type Claims = sushiData.vesting.User[];
 type Claims = shibaSwapData.vesting.User[];
 
-// type Users = sushiData.masterchef.User[];
 type Users = shibaSwapData.topdog.User[];
 
 export default {
@@ -28,6 +22,6 @@ export default {
     },
 
     async users(block_number: number): Promise<Users> {
-        return await shibaSwapData.topDog.users({block: block_number});
+        return await shibaSwapData.topdog.users({block: block_number});
     }
 }

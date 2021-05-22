@@ -1,8 +1,8 @@
-import sushiData from '@sushiswap/sushi-data';
-declare type Info = sushiData.masterchef.Info;
-declare type Pools = sushiData.masterchef.Pool[];
-declare type Claims = sushiData.vesting.User[];
-declare type Users = sushiData.masterchef.User[];
+import shibaSwapData from '@shibaswap/shibaswap-data-snoop';
+declare type Info = shibaSwapData.topdog.Info;
+declare type Pools = shibaSwapData.topdog.Pool[];
+declare type Claims = shibaSwapData.vesting.User[];
+declare type Users = shibaSwapData.topdog.User[];
 declare const _default: {
     info(block_number: number): Promise<Info>;
     pools(block_number: number): Promise<Pools>;

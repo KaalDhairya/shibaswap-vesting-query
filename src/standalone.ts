@@ -1,7 +1,6 @@
 import { Command } from "commander";
 import fs from "fs";
-import sushiData from '@sushiswap/sushi-data';
-import shibaSwapData from '@shibaswap/shibaswap-data';
+import shibaSwapData from '@shibaswap/shibaswap-data-snoop';
 
 import getDistribution from './index';
 import { VESTING_START } from "./constants";
