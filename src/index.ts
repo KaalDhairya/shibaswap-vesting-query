@@ -1,4 +1,5 @@
 import sushiData from '@sushiswap/sushi-data';
+import shibaSwapData from '@shibaswap/shibaswap-data';
 import { parseBalanceMap } from './parse-balance-map'
 
 import queries from './queries';
@@ -7,13 +8,13 @@ import { VESTING_POOL_ID, VESTING_START } from "./constants";
 import redirects from './redirects.json';
 import blacklist from './blacklist.json';
 
-type Info = sushiData.masterchef.Info;
+type Info = shibaSwapData.topdog.Info;
 
-type Pools = sushiData.masterchef.Pool[];
+type Pools = shibaSwapData.topdog.Pool[];
 
-type Claims = sushiData.vesting.User[];
+type Claims = shibaSwapData.vesting.User[];
 
-type User = sushiData.masterchef.User;
+type User = shibaSwapData.topdog.User;
 
 type UsersConsolidated = {
     address: string,
@@ -40,7 +41,7 @@ type Data = {
 
 export default async function getDistribution(options: Options) {
     options.startBlock = options.startBlock ?? VESTING_START;
-    options.claimBlock = options.claimBlock ?? (await sushiData.blocks.latestBlock()).number;
+    options.claimBlock = options.claimBlock ?? (await shibaSwapData.blocks.latestBlock()).number;
 
     // Fetch the data and redirect the addresses right away
     const data = redirect(await fetchData(options.startBlock, options.endBlock, options.claimBlock));

@@ -5,3 +5,9 @@ test.ts
 outputs
 
 yarn-error.log
+/.idea/.gitignore
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/sushi-vesting-query.iml
+/.idea/vcs.xml
+/yarn.lock

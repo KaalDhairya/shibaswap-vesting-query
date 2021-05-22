@@ -1,6 +1,7 @@
 import { Command } from "commander";
 import fs from "fs";
 import sushiData from '@sushiswap/sushi-data';
+import shibaSwapData from '@shibaswap/shibaswap-data';
 
 import getDistribution from './index';
 import { VESTING_START } from "./constants";
@@ -26,7 +27,7 @@ async function main() {
     const options: Options = {
         startBlock: Number(program.opts().startBlock ?? VESTING_START),
         endBlock: Number(program.opts().endBlock),
-        claimBlock: Number(program.opts().claimBlock ?? await sushiData.utils.timestampToBlock(Date.now()))
+        claimBlock: Number(program.opts().claimBlock ?? await shibaSwapData.utils.timestampToBlock(Date.now()))
     }
 
     const distribution = await getDistribution(options);

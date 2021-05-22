@@ -1,6 +1,7 @@
 export const VESTING_START = 10959148;
 
-export const VESTING_POOL_ID = 29;
+export const VESTING_POOL_ID = 1; // 29
+// export const SHIBASWAP_VESTING_POOL_ID = 1;
 
 export const MULTISIGS = [
     "0xaa394e08c74e2b2f76ff000adeb25f20423cfe2a",
