@@ -31,6 +31,7 @@ async function main() {
 
     const distribution = await getDistribution(options);
 
+    // TODO
     if(!fs.existsSync('./outputs')) {
         fs.mkdirSync('./outputs')
     }
