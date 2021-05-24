@@ -45,6 +45,9 @@ export default async function getDistribution(options: Options) {
     console.log(options.claimBlock);
     // Fetch the data and redirect the addresses right away
     const data = redirect(await fetchData(options.startBlock, options.endBlock, options.claimBlock));
+
+    console.log(data);
+
     const final = finalize(
         consolidate(data.beginning, options.startBlock),
         consolidate(data.end, options.endBlock),
