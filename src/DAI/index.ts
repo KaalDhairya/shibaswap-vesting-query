@@ -1,5 +1,5 @@
 import shibaSwapData from '@shibaswap/shibaswap-data-snoop';
-import { parseBalanceMap } from './parse-balance-map'
+import { parseBalanceMap } from '../buryshib-bone/parse-balance-map'
 
 import queries from './queries';
 
@@ -75,7 +75,7 @@ async function fetchData(startBlock: number, endBlock: number, claimBlock: numbe
         queries.claims(claimBlock)
     ]);
     console.log("###################################################");
-    console.log(infoBeginning, infoEnd, poolsBeginning, poolsEnd, usersBeginning, usersEnd, claimed);
+    console.log(claimed);
 
     return ({
         beginning: {
