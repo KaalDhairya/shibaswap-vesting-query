@@ -23,6 +23,7 @@
   },
   "scripts": {
     "standalone": "ts-node src/standalone",
+    "standalone:USDC": "ts-node src/USDC/standalone",
     "generate-blacklist": "ts-node src/generate-blacklist",
     "validate": "ts-node src/validate-address",
     "select": "ts-node src/select-data",
