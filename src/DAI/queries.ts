@@ -18,7 +18,7 @@ export default {
     },
     
     async claims(block_number?: number): Promise<Claims> {
-        return await shibaSwapData.swapUSDCRewardsVesting.users({block: block_number})
+        return await shibaSwapData.swapDAIRewardsVesting.users({block: block_number})
     },
 
     async users(block_number: number): Promise<Users> {

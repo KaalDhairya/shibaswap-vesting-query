@@ -8,7 +8,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@shibaswap/shibaswap-data-snoop": "0.1.18",
+    "@shibaswap/shibaswap-data-snoop": "0.1.21",
     "@sushiswap/sushi-data": "lufycz/sushi-data#vesting",
     "axios": "^0.21.1",
     "bluebird": "^3.7.2",
@@ -25,6 +25,10 @@
   "scripts": {
     "standalone": "ts-node src/standalone",
     "standalone:USDC": "ts-node src/USDC/standalone",
+    "standalone:USDT": "ts-node src/USDT/standalone",
+    "standalone:WBTC": "ts-node src/WBTC/standalone",
+    "standalone:DAI": "ts-node src/DAI/standalone",
+    "standalone:BuryShibBone": "ts-node src/BuryShibBone/standalone",
     "generate-blacklist": "ts-node src/generate-blacklist",
     "validate": "ts-node src/validate-address",
     "select": "ts-node src/select-data",
