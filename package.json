@@ -8,15 +8,16 @@
   ],
   "license": "MIT",
   "dependencies": {
+    "@shibaswap/shibaswap-data-snoop": "0.1.18",
     "@sushiswap/sushi-data": "lufycz/sushi-data#vesting",
     "axios": "^0.21.1",
+    "bluebird": "^3.7.2",
     "commander": "^7.0.0",
     "ethereumjs-util": "^7.0.8",
     "ethers": "^5.0.31",
     "fs": "^0.0.1-security",
     "ts-node": "^9.1.1",
-    "typescript": "^4.1.3",
-    "@shibaswap/shibaswap-data-snoop" : "0.0.9"
+    "typescript": "^4.1.3"
   },
   "devDependencies": {
     "@types/node": "^14.14.31"

@@ -6,7 +6,7 @@ import queries from './queries';
 import { VESTING_POOL_ID, VESTING_START } from "../constants";
 import redirects from '../redirects.json';
 import blacklist from './blacklist.json';
-import { start } from 'repl';
+import {Promise} from "bluebird"
 
 type Info = shibaSwapData.topdog.Info;
 
@@ -88,22 +88,14 @@ export default async function getDistribution(options: Options) {
 // }
 
 async function fetchData(blockNumber: number) {
-    const [
-        infoBeginning,
-        poolsBeginning,
-        usersBeginning,
-    ] = await Promise.all([
-        queries.info(blockNumber),
-        queries.pools(blockNumber),
-        queries.users(blockNumber),
-    ]);
+    const pools = await queries.pools(blockNumber);
+    const users = await queries.users(blockNumber);
     console.log("###################################################");
     // console.log(infoBeginning, infoEnd, poolsBeginning, poolsEnd, usersBeginning, usersEnd, claimed);
 
     return ({
-            info: infoBeginning,
-            pools: poolsBeginning,
-            users: usersBeginning
+            pools: pools,
+            users: users
     });
 }
 
@@ -169,21 +161,25 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
     // console.log("totalVested", totalVested);
     // console.log("claims", claims);
 
-    let blocks:number[] = []
-    let i: number = 0
-    let usersA:{[key in string]?: number} = {}
+    let blocks:number[] = [25103031, 25103054, 25103227, 25103229, 25103332, 25103373, 25103415, 25104708, 25104753, 25104762, 25104772, 25104773, 25104775, 25104784, 25110913, 25110944, 25110957, 25110970, 25111358, 25111364, 25111536, 25111560, 25111582, 25111716, 
+        25111719, 25115436, 25115442, 25115484, 25116501, 25116503, 25116515, 25116566, 25127993, 25127994, 25129039, 25129042, 25129060, 25129061, 25129076, 25129078, 25129079, 25156792, 25156793, 25170149,
+        25170152, 25170166, 25170169, 25182627, 25182630, 25182801, 25182807, 25182812, 25182834, 25182840, 25182866, 25182868, 25182891, 25182917, 25183029, 25183039, 25183213, 25183250, 25183278, 25184238, 25184546, 25184547, 25184548, 25192486, 25192489, 25205200]
+    let usersA = new Map()
     let cumSSLP = 0
-    for(i= startBlock; i < endBlock; i++){
-        blocks.push(i)
-    }
-    let promises:any[] = []
-    blocks.forEach(blockNumber=>{
-         promises.push(fetchData(blockNumber))
-    })
-    const data: any[] = await Promise.all(promises);
+    // blocks.forEach(blockNumber=>{
+    //      promises.push(fetchData(blockNumber))
+    // })
+    // const data: any[] = await Promise.all(promises);
+    const data = await Promise.mapSeries(blocks, (block) => fetchData(block))
+    // console.log(data)
     data?.forEach((blockData)=>{
-        blockData.users.forEach(user => {
-            usersA[user.address] = usersA[user.address]??0 + user.amount;
+        const newUsers = blockData.users.filter(u=>u.poolId == 0);
+        newUsers.forEach(user => {
+            if(usersA.has(user.address)) {
+                usersA.set(user.address, usersA.get(user.address) + user.amount)
+            } else {
+                usersA.set(user.address, user.amount)
+            }
         });
         cumSSLP+= blockData.pools[0].sslpBalance;
     })
@@ -192,35 +188,16 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
     console.log(cumSSLP)
 
     let users:any[] = []
-    for(var address in usersA){
-        if(usersA[address]){
-            users.push({
-                address: address,
-                amount: Number(usersA[address]??0*1000/cumSSLP)
-            })
-        }
+    for(var address of usersA.keys()){
+        users.push({
+            address: address,
+            amount: Number((usersA.get(address)*10000)/cumSSLP)
+        })
     }
     console.log(users)
 
-    // const users = usersA.map((k,v) => {
-    //     return ({
-    //         address: userEnd.address,
-    //         amount: userEnd.amount - (usersBeginning.find(usersBeginning => usersBeginning.address === userEnd.address)?.amount ?? 0)
-    //     })
-    // });
-
-    // const users = usersEnd;
-    // console.log("users:: ", users);
-
-    // const totalFarmed = users.reduce((a, b) => a + b.amount, 0);
-
-    // const fraction = totalVested / totalFarmed;
-
-    // console.log(
-    //     "totalFarmed: ", totalFarmed,
-    //     "\ntotalVested: ", totalVested,
-    //     "\nfraction: ", fraction
-    // )
+    const claims = await queries.claims(claimBlock);
+    console.log(claims)
 
     return {
         users: users
@@ -229,11 +206,11 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
             .map(user => {
                 // const vested = user.amount * fraction;
 
-                // const claimed = claims.find(u => user.address === u.id)?.totalClaimed ?? 0;
+                const claimed = claims.find(u => user.address === u.id)?.totalClaimed ?? 0;
 
                 return ({
                     address: user.address,
-                    vested: BigInt(((user.amount)))
+                    vested: BigInt(((user.amount - claimed)))
                 })
             })
             .filter(user => user.vested >= BigInt(0))

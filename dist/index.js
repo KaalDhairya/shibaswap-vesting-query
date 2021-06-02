@@ -13,8 +13,10 @@ async function getDistribution(options) {
     var _a, _b;
     options.startBlock = (_a = options.startBlock) !== null && _a !== void 0 ? _a : constants_1.VESTING_START;
     options.claimBlock = (_b = options.claimBlock) !== null && _b !== void 0 ? _b : (await shibaswap_data_snoop_1.default.blocks.latestBlock()).number;
+    console.log("**************************");
+    console.log(options.claimBlock);
     // Fetch the data and redirect the addresses right away
-    const data = redirect(await fetchData(options.startBlock, options.endBlock, options.claimBlock || 1));
+    const data = redirect(await fetchData(options.startBlock, options.endBlock, options.claimBlock));
     const final = finalize(consolidate(data.beginning, options.startBlock), consolidate(data.end, options.endBlock), calculateTotalVested(data, options), data.end.claims);
     return {
         amounts: final.users,
@@ -30,6 +32,8 @@ async function fetchData(startBlock, endBlock, claimBlock) {
         queries_1.default.users(startBlock), queries_1.default.users(endBlock),
         queries_1.default.claims(claimBlock)
     ]);
+    console.log("###################################################");
+    console.log(infoBeginning, infoEnd, poolsBeginning, poolsEnd, usersBeginning, usersEnd, claimed);
     return ({
         beginning: {
             info: infoBeginning,
@@ -149,6 +153,8 @@ function pendingBone(block, totalAllocPoint, pools, user) {
     let accBonePerShare = pool.accBonePerShare;
     if (block > pool.lastRewardBlock && pool.sslpBalance !== 0) {
         let multiplier = block - pool.lastRewardBlock;
+        console.log("************************");
+        console.log(multiplier, pool.allocPoint, totalAllocPoint);
         let boneReward = BigInt(Math.floor(multiplier * 100 * 1e18 * pool.allocPoint / totalAllocPoint));
         accBonePerShare = accBonePerShare + boneReward * BigInt(1e12) / BigInt(Math.floor(pool.sslpBalance * 1e18));
     }
