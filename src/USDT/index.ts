@@ -169,7 +169,7 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
     let usersA = new Map()
     let cumSSLP = 0
     const POOL = 0;
-    const REWARD_AMOUNT = 7000;
+    const REWARD_AMOUNT = 9000;
 
     // blocks.forEach(blockNumber=>{
     //      promises.push(fetchData(blockNumber))
@@ -186,7 +186,7 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
                 usersA.set(user.address, user.amount)
             }
         });
-        cumSSLP+= blockData.pools[POOL].sslpBalance;
+        cumSSLP+= blockData.pools[POOL]?.sslpBalance??0;
     })
 
     console.log(usersA)
@@ -218,7 +218,7 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
                     vested: BigInt(Math.floor((user.amount - claimed) * 1e18))
                 })
             })
-            .filter(user => user.vested >= BigInt(0))
+            .filter(user => user.vested > BigInt(0))
             .map(user => ({[user.address]: String(user.vested)}))
             .reduce((a, b) => ({...a, ...b}), {}),
 
@@ -235,7 +235,7 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
                     vested: BigInt(((user.amount)))
                 })
             })
-            .filter(user => user.vested >= BigInt(0))
+            .filter(user => user.vested > BigInt(0))
             .map(user => ({[user.address]: String(user.vested)}))
             .reduce((a, b) => ({...a, ...b}), {}),
     }

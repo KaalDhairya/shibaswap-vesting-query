@@ -89,17 +89,17 @@ export default async function getDistribution(options: Options) {
 //     });
 // }
 
-async function fetchData(blockNumber: number) {
-    const pools = await queries.pools(blockNumber);
-    const users = await queries.users(blockNumber);
-    console.log("###################################################");
-    // console.log(infoBeginning, infoEnd, poolsBeginning, poolsEnd, usersBeginning, usersEnd, claimed);
+// async function fetchData(blockNumber: number) {
+//     const pools = await queries.pools(blockNumber);
+//     const users = await queries.users(blockNumber);
+//     console.log("###################################################");
+//     // console.log(infoBeginning, infoEnd, poolsBeginning, poolsEnd, usersBeginning, usersEnd, claimed);
 
-    return ({
-            pools: pools,
-            users: users
-    });
-}
+//     return ({
+//             pools: pools,
+//             users: users
+//     });
+// }
 
 // Redirects addresses
 function redirect(data: Data) {
@@ -158,45 +158,37 @@ function consolidate(data: DataPart, block: number) {
 }
 
 async function finalize(startBlock: number, endBlock: number, claimBlock: number) {
-    // console.log("usersBeginning", usersBeginning);
-    // console.log("usersEnd", usersEnd);
-    // console.log("totalVested", totalVested);
-    // console.log("claims", claims);
-
-    let blocks:number[] = [25103031, 25103054, 25103227, 25103229, 25103332, 25103373, 25103415, 25104708, 25104753, 25104762, 25104772, 25104773, 25104775, 25104784, 25110913, 25110944, 25110957, 25110970, 25111358, 25111364, 25111536, 25111560, 25111582, 25111716, 
-        25111719, 25115436, 25115442, 25115484, 25116501, 25116503, 25116515, 25116566, 25127993, 25127994, 25129039, 25129042, 25129060, 25129061, 25129076, 25129078, 25129079, 25156792, 25156793, 25170149,
-        25170152, 25170166, 25170169, 25182627, 25182630, 25182801, 25182807, 25182812, 25182834, 25182840, 25182866, 25182868, 25182891, 25182917, 25183029, 25183039, 25183213, 25183250, 25183278, 25184238, 25184546, 25184547, 25184548, 25192486, 25192489, 25205200]
-    const POOL = 1;
-    const REWARD_AMOUNT = 10000;
+    let blocks:number[] = [25079266, 25082856, 25083012, 25083633, 25083639, 25083696, 25083716, 25083746, 25083758, 25100816, 25100869, 25119633, 25127750, 25127981, 25128623, 25128624, 25128941, 25128958, 25128965, 25163479, 25163643, 25163650, 25172003, 25172013]
+    const POOL = 0;
+    const REWARD_AMOUNT = 0.794;
     
     let usersA = new Map()
-    let cumSSLP = 0
-    // blocks.forEach(blockNumber=>{
-    //      promises.push(fetchData(blockNumber))
-    // })
-    // const data: any[] = await Promise.all(promises);
-    const data = await Promise.mapSeries(blocks, (block) => fetchData(block))
-    // console.log(data)
-    data?.forEach((blockData)=>{
-        const newUsers = blockData.users.filter(u=>u.poolId == POOL);
-        newUsers.forEach(user => {
-            if(usersA.has(user.address)) {
-                usersA.set(user.address, usersA.get(user.address) + user.amount)
-            } else {
-                usersA.set(user.address, user.amount)
-            }
-        });
-        cumSSLP+= blockData.pools[POOL]?.sslpBalance??0;
+    let cumSupply = 0
+    const data = await Promise.mapSeries(blocks, (block) => queries.buryShibUsers(block))
+    data.forEach((eachBlockQueryResult, blockIndex) => {
+        eachBlockQueryResult.forEach(eachBuryInABlock => {
+            eachBuryInABlock.users.forEach((eachBuryUserInABlock : any, userIndex) => {
+                // Check if the user is already marked for the block if yes don't increment
+                const userAddress = eachBuryUserInABlock.id;
+                if (usersA.has(userAddress)) {
+                    usersA.set(userAddress, usersA.get(userAddress) + eachBuryUserInABlock.xShib)
+                } else {
+                    usersA.set(userAddress, eachBuryUserInABlock.xShib)
+                }
+            })
+            cumSupply += Number(eachBuryInABlock.totalSupply);
+        })
+
     })
 
     console.log(usersA)
-    console.log(cumSSLP)
+    console.log(cumSupply)
 
     let users:any[] = []
     for(var address of usersA.keys()){
         users.push({
             address: address,
-            amount: Number(((usersA.get(address)*REWARD_AMOUNT)/cumSSLP)/1e18)
+            amount: Number(((usersA.get(address)*REWARD_AMOUNT)/cumSupply))
         })
     }
     console.log(users)

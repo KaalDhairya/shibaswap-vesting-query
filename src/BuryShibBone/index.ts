@@ -158,36 +158,13 @@ function consolidate(data: DataPart, block: number) {
 }
 
 async function finalize(startBlock: number, endBlock: number, claimBlock: number) {
-    // console.log("usersBeginning", usersBeginning);
-    // console.log("usersEnd", usersEnd);
-    // console.log("totalVested", totalVested);
-    // console.log("claims", claims);
-
     let blocks:number[] = [25079266, 25082856, 25083012, 25083633, 25083639, 25083696, 25083716, 25083746, 25083758, 25100816, 25100869, 25119633, 25127750, 25127981, 25128623, 25128624, 25128941, 25128958, 25128965, 25163479, 25163643, 25163650, 25172003, 25172013]
     const POOL = 0;
-    const REWARD_AMOUNT = 10000;
+    const REWARD_AMOUNT = 100000;
     
     let usersA = new Map()
     let cumSupply = 0
-    // blocks.forEach(blockNumber=>{
-    //      promises.push(fetchData(blockNumber))
-    // })
-    // const data: any[] = await Promise.all(promises);
     const data = await Promise.mapSeries(blocks, (block) => queries.buryShibUsers(block))
-    // console.log(data)
-    // data?.forEach((blockData)=>{
-    //     const newUsers = blockData.users.filter(u=>u.poolId == POOL);
-    //     newUsers.forEach(user => {
-    //         if(usersA.has(user.address)) {
-    //             usersA.set(user.address, usersA.get(user.address) + user.amount)
-    //         } else {
-    //             usersA.set(user.address, user.amount)
-    //         }
-    //     });
-    //     cumSupply+= blockData.pools[POOL].sslpBalance;
-    // })
-
-    let totalTotalSupply = 0;
     data.forEach((eachBlockQueryResult, blockIndex) => {
         eachBlockQueryResult.forEach(eachBuryInABlock => {
             eachBuryInABlock.users.forEach((eachBuryUserInABlock : any, userIndex) => {
@@ -233,7 +210,7 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
                     vested: BigInt(Math.floor((user.amount - claimed) * 1e18))
                 })
             })
-            .filter(user => user.vested >= BigInt(0))
+            .filter(user => user.vested > BigInt(0))
             .map(user => ({[user.address]: String(user.vested)}))
             .reduce((a, b) => ({...a, ...b}), {}),
 
@@ -250,7 +227,7 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
                     vested: BigInt(Math.floor((user.amount - claimed) * 1e18))
                 })
             })
-            .filter(user => user.vested >= BigInt(0))
+            .filter(user => user.vested > BigInt(0))
             .map(user => ({[user.address]: String(user.vested)}))
             .reduce((a, b) => ({...a, ...b}), {}),
     }

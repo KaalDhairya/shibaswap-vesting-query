@@ -31,26 +31,26 @@ async function main() {
 
     const distribution = await getDistribution(options);
 
-    if(!fs.existsSync('./outputs/BuryShibBone')) {
-        fs.mkdirSync('./outputs/BuryShibBone', { recursive: true})
+    if(!fs.existsSync('./outputs/BuryShibWeth')) {
+        fs.mkdirSync('./outputs/BuryShibWeth', { recursive: true})
     }
 
     fs.writeFileSync(
-        `./outputs/BuryShibBone/amounts-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
+        `./outputs/BuryShibWeth/amounts-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
         JSON.stringify(
             distribution.amounts, null, 1
         )
     );
 
     fs.writeFileSync(
-        `./outputs/BuryShibBone/blacklisted-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
+        `./outputs/BuryShibWeth/blacklisted-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
         JSON.stringify(
             distribution.blacklisted, null, 1
         )
     );
 
     fs.writeFileSync(
-        `./outputs/BuryShibBone/merkle-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
+        `./outputs/BuryShibWeth/merkle-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
         JSON.stringify(
             distribution.merkle, null, 1
         )

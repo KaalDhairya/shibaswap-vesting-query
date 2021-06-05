@@ -168,8 +168,8 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
         25170152, 25170166, 25170169, 25182627, 25182630, 25182801, 25182807, 25182812, 25182834, 25182840, 25182866, 25182868, 25182891, 25182917, 25183029, 25183039, 25183213, 25183250, 25183278, 25184238, 25184546, 25184547, 25184548, 25192486, 25192489, 25205200]
     let usersA = new Map()
     let cumSSLP = 0
-    const POOL = 0;
-    const REWARD_AMOUNT = 7000;
+    const POOL = 1;
+    const REWARD_AMOUNT = 3000;
 
     // blocks.forEach(blockNumber=>{
     //      promises.push(fetchData(blockNumber))
@@ -186,7 +186,7 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
                 usersA.set(user.address, user.amount)
             }
         });
-        cumSSLP+= blockData.pools[POOL].sslpBalance;
+        cumSSLP+= blockData.pools[POOL]?.sslpBalance??0;
     })
 
     console.log(usersA)
@@ -218,7 +218,7 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
                     vested: BigInt(Math.floor((user.amount - claimed) * 1e18))
                 })
             })
-            .filter(user => user.vested >= BigInt(0))
+            .filter(user => user.vested > BigInt(0))
             .map(user => ({[user.address]: String(user.vested)}))
             .reduce((a, b) => ({...a, ...b}), {}),
 
@@ -235,7 +235,7 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
                     vested: BigInt(((user.amount)))
                 })
             })
-            .filter(user => user.vested >= BigInt(0))
+            .filter(user => user.vested > BigInt(0))
             .map(user => ({[user.address]: String(user.vested)}))
             .reduce((a, b) => ({...a, ...b}), {}),
     }

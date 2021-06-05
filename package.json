@@ -29,6 +29,8 @@
     "standalone:WBTC": "ts-node src/WBTC/standalone",
     "standalone:DAI": "ts-node src/DAI/standalone",
     "standalone:BuryShibBone": "ts-node src/BuryShibBone/standalone",
+    "standalone:BuryShibWeth": "ts-node src/BuryShibWeth/standalone",
+    "standalone:BuryLeashBone": "ts-node src/BuryLeashBone/standalone",
     "generate-blacklist": "ts-node src/generate-blacklist",
     "validate": "ts-node src/validate-address",
     "select": "ts-node src/select-data",
