@@ -158,37 +158,130 @@ function consolidate(data: DataPart, block: number) {
 }
 
 async function finalize(startBlock: number, endBlock: number, claimBlock: number) {
-    let blocks:number[] = [25079266, 25082856, 25083012, 25083633, 25083639, 25083696, 25083716, 25083746, 25083758, 25100816, 25100869, 25119633, 25127750, 25127981, 25128623, 25128624, 25128941, 25128958, 25128965, 25163479, 25163643, 25163650, 25172003, 25172013]
+    let blocks:number[] = [
+        25290297,
+        25290870,
+        25290949,
+        25291142,
+        25291170,
+        25292815,
+        25292961,
+        25293028,
+        25293029,
+        25293029,
+        25293490,
+        25293491,
+        25294055,
+        25294474,
+        25294700,
+        25296876,
+        25302906,
+        25302911,
+        25302914,
+        25305927,
+        25305935,
+        25307036,
+        25307118,
+        25307131,
+        25307185,
+        25307195,
+        25307217,
+        25307294,
+        25307307,
+        25307316,
+        25307368,
+        25307398,
+        25307410,
+        25307417,
+        25307443,
+        25307471,
+        25307734,
+        25307747,
+        25308388,
+        25311916,
+        25313303,
+        25313527,
+        25313706,
+        25313760,
+        25313769,
+        25313813,
+        25314243,
+        25322128,
+        25322130,
+        25322132,
+        25322134,
+        25322140,
+        25322146,
+        25322147,
+        25322148,
+        25322149,
+        25322150,
+        25322151,
+        25322157,
+        25322158,
+        25322159,
+        25322161,
+        25322162,
+        25322163,
+        25322166,
+        25322168,
+        25322169,
+        25322170,
+        25322173,
+        25322174,
+        25322175,
+        25322176,
+        25322178,
+        25322180,
+        25322181,
+        25322183,
+        25322287,
+        25322307,
+        25322314,
+        25322315,
+        25322316,
+        25322324,
+        25325310,
+        25325960]
     const POOL = 0;
     const REWARD_AMOUNT = 0.794;
     
     let usersA = new Map()
     let cumSupply = 0
     const data = await Promise.mapSeries(blocks, (block) => queries.buryShibUsers(block))
+
+    const blockWithSSLP = data.reduce((num, curr)=>{
+        return num + !!(curr[0]?.totalSupply)
+    },0)
+    console.log(blockWithSSLP)
+    const rewardPerBlock = REWARD_AMOUNT/blockWithSSLP;
+
     data.forEach((eachBlockQueryResult, blockIndex) => {
         eachBlockQueryResult.forEach(eachBuryInABlock => {
             eachBuryInABlock.users.forEach((eachBuryUserInABlock : any, userIndex) => {
                 // Check if the user is already marked for the block if yes don't increment
                 const userAddress = eachBuryUserInABlock.id;
-                if (usersA.has(userAddress)) {
-                    usersA.set(userAddress, usersA.get(userAddress) + eachBuryUserInABlock.xShib)
+                const totalSupplyAtBlock = eachBuryInABlock.totalSupply??0;
+                const userReward = totalSupplyAtBlock ? (eachBuryUserInABlock.xShib*rewardPerBlock/totalSupplyAtBlock): 0;
+                if(usersA.has(userAddress)) {
+                    usersA.set(userAddress, usersA.get(userAddress) + userReward)
                 } else {
-                    usersA.set(userAddress, eachBuryUserInABlock.xShib)
+                    usersA.set(userAddress, userReward)
                 }
             })
-            cumSupply += Number(eachBuryInABlock.totalSupply);
+            // cumSupply += Number(eachBuryInABlock.totalSupply);
         })
 
     })
 
     console.log(usersA)
-    console.log(cumSupply)
+    // console.log(cumSupply)
 
     let users:any[] = []
     for(var address of usersA.keys()){
         users.push({
             address: address,
-            amount: Number(((usersA.get(address)*REWARD_AMOUNT)/cumSupply))
+            amount: Number(usersA.get(address))
         })
     }
     console.log(users)

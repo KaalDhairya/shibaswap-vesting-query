@@ -158,37 +158,65 @@ function consolidate(data: DataPart, block: number) {
 }
 
 async function finalize(startBlock: number, endBlock: number, claimBlock: number) {
-    let blocks:number[] = [25079286, 25082276, 25082881, 25083018, 25104968, 25105032, 25105038, 25105855, 25105857, 25115402, 25115403, 25119614, 25171589, 25171599, 25182059, 25182070 ]
+    let blocks:number[] = [
+        25290306,
+        25290914,
+        25291514,
+        25292854,
+        25293145,
+        25293241,
+        25294417,
+        25295219,
+        25306467,
+        25307208,
+        25307279,
+        25308167,
+        25308398,
+        25313307,
+        25313311,
+        25313830,
+        25315413,
+        25315444,
+        25325324]
     const POOL = 0;
     const REWARD_AMOUNT = 20000;
     
     let usersA = new Map()
     let cumSupply = 0
     const data = await Promise.mapSeries(blocks, (block) => queries.buryLeashUsers(block))
+
+    const blockWithSSLP = data.reduce((num, curr)=>{
+        return num + !!(curr[0]?.totalSupply)
+    },0)
+    console.log(blockWithSSLP)
+    const rewardPerBlock = REWARD_AMOUNT/blockWithSSLP;
+
     data.forEach((eachBlockQueryResult, blockIndex) => {
         eachBlockQueryResult.forEach(eachBuryInABlock => {
             eachBuryInABlock.users.forEach((eachBuryUserInABlock : any, userIndex) => {
                 // Check if the user is already marked for the block if yes don't increment
                 const userAddress = eachBuryUserInABlock.id;
-                if (usersA.has(userAddress)) {
-                    usersA.set(userAddress, usersA.get(userAddress) + eachBuryUserInABlock.xLeash)
+                const totalSupplyAtBlock = eachBuryInABlock.totalSupply??0;
+                const userReward = totalSupplyAtBlock ? (eachBuryUserInABlock.xShib*rewardPerBlock/totalSupplyAtBlock): 0;
+                if(usersA.has(userAddress)) {
+                    usersA.set(userAddress, usersA.get(userAddress) + userReward)
                 } else {
-                    usersA.set(userAddress, eachBuryUserInABlock.xLeash)
+                    usersA.set(userAddress, userReward)
                 }
             })
-            cumSupply += Number(eachBuryInABlock.totalSupply);
+            // cumSupply += Number(eachBuryInABlock.totalSupply);
         })
 
     })
 
     console.log(usersA)
-    console.log(cumSupply)
+    // console.log(cumSupply)
 
     let users:any[] = []
     for(var address of usersA.keys()){
         users.push({
             address: address,
-            amount: Number(((usersA.get(address)*REWARD_AMOUNT)/cumSupply))
+            amount: Number(usersA.get(address))
         })
     }
     console.log(users)
