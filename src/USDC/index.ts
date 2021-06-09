@@ -433,7 +433,7 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
         25327560,
         25327914]
     const POOL = 1;
-    const REWARD_AMOUNT = 1000;
+    const REWARD_AMOUNT = 10000;
     
     let usersA = new Map()
     let cumSSLP = 0

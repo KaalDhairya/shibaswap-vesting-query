@@ -179,11 +179,12 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
         25315444,
         25325324]
     const POOL = 0;
-    const REWARD_AMOUNT = 20000;
+    const REWARD_AMOUNT = 424136;
     
     let usersA = new Map()
     let cumSupply = 0
     const data = await Promise.mapSeries(blocks, (block) => queries.buryLeashUsers(block))
+    console.log(data)
 
     const blockWithSSLP = data.reduce((num, curr)=>{
         return num + !!(curr[0]?.totalSupply)
@@ -197,7 +198,7 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
                 // Check if the user is already marked for the block if yes don't increment
                 const userAddress = eachBuryUserInABlock.id;
                 const totalSupplyAtBlock = eachBuryInABlock.totalSupply??0;
-                const userReward = totalSupplyAtBlock ? (eachBuryUserInABlock.xShib*rewardPerBlock/totalSupplyAtBlock): 0;
+                const userReward = totalSupplyAtBlock ? (eachBuryUserInABlock.xLeash*rewardPerBlock/totalSupplyAtBlock): 0;
                 if(usersA.has(userAddress)) {
                     usersA.set(userAddress, usersA.get(userAddress) + userReward)
                 } else {

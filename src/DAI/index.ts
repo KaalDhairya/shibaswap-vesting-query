@@ -435,7 +435,7 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
     let usersA = new Map()
     let cumSSLP = 0
     const POOL = 1;
-    const REWARD_AMOUNT = 1200;
+    const REWARD_AMOUNT = 1124;
 
     const data = await Promise.mapSeries(blocks, (block) => fetchData(block))
     const blockWithSSLP = data.reduce((num, curr)=>{
