@@ -158,33 +158,17 @@ function consolidate(data: DataPart, block: number) {
 }
 
 async function finalize(startBlock: number, endBlock: number, claimBlock: number) {
-    let blocks:number[] = [
-        25290306,
-        25290914,
-        25291514,
-        25292854,
-        25293145,
-        25293241,
-        25294417,
-        25295219,
-        25306467,
-        25307208,
-        25307279,
-        25308167,
-        25308398,
-        25313307,
-        25313311,
-        25313830,
-        25315413,
-        25315444,
-        25325324]
+    let blocks:number[] = [25290306, 25290914, 25291514, 25292854, 25293145, 25293241, 25294417, 25295219, 25306467, 25307208, 25307279, 25308167, 25308398, 25313307, 25313311, 25313830, 25315413, 25315444, 25325324, 25329368, 25386421]
     const POOL = 0;
-    const REWARD_AMOUNT = 424136;
+    const REWARD_AMOUNT = 450000;
+    const INPUT_DECIMAL = 1e18;
+    const OUTPUT_DECIMAL = 1e18;
+    
     
     let usersA = new Map()
     let cumSupply = 0
     const data = await Promise.mapSeries(blocks, (block) => queries.buryLeashUsers(block))
-    console.log(data)
+    // console.log(da ta)
 
     const blockWithSSLP = data.reduce((num, curr)=>{
         return num + !!(curr[0]?.totalSupply)
@@ -236,7 +220,7 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
 
                 return ({
                     address: user.address,
-                    vested: BigInt(Math.floor((user.amount - claimed) * 1e18))
+                    vested: BigInt(Math.floor((user.amount - claimed) * OUTPUT_DECIMAL))
                 })
             })
             .filter(user => user.vested > BigInt(0))
@@ -253,7 +237,7 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
 
                 return ({
                     address: user.address,
-                    vested: BigInt(Math.floor((user.amount - claimed) * 1e18))
+                    vested: BigInt(Math.floor((user.amount - claimed) * OUTPUT_DECIMAL))
                 })
             })
             .filter(user => user.vested > BigInt(0))

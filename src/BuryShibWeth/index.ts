@@ -158,93 +158,13 @@ function consolidate(data: DataPart, block: number) {
 }
 
 async function finalize(startBlock: number, endBlock: number, claimBlock: number) {
-    let blocks:number[] = [
-        25290297,
-        25290870,
-        25290949,
-        25291142,
-        25291170,
-        25292815,
-        25292961,
-        25293028,
-        25293029,
-        25293029,
-        25293490,
-        25293491,
-        25294055,
-        25294474,
-        25294700,
-        25296876,
-        25302906,
-        25302911,
-        25302914,
-        25305927,
-        25305935,
-        25307036,
-        25307118,
-        25307131,
-        25307185,
-        25307195,
-        25307217,
-        25307294,
-        25307307,
-        25307316,
-        25307368,
-        25307398,
-        25307410,
-        25307417,
-        25307443,
-        25307471,
-        25307734,
-        25307747,
-        25308388,
-        25311916,
-        25313303,
-        25313527,
-        25313706,
-        25313760,
-        25313769,
-        25313813,
-        25314243,
-        25322128,
-        25322130,
-        25322132,
-        25322134,
-        25322140,
-        25322146,
-        25322147,
-        25322148,
-        25322149,
-        25322150,
-        25322151,
-        25322157,
-        25322158,
-        25322159,
-        25322161,
-        25322162,
-        25322163,
-        25322166,
-        25322168,
-        25322169,
-        25322170,
-        25322173,
-        25322174,
-        25322175,
-        25322176,
-        25322178,
-        25322180,
-        25322181,
-        25322183,
-        25322287,
-        25322307,
-        25322314,
-        25322315,
-        25322316,
-        25322324,
-        25325310,
-        25325960]
+    let blocks:number[] = [25290297, 25290870, 25290949, 25291142, 25291170, 25292815, 25292961, 25293028, 25293029, 25293029, 25293490, 25293491, 25294055, 25294474, 25294700, 25296876, 25302906, 25302911, 25302914, 25305927, 25305935, 25307036, 25307118, 25307131, 25307185, 25307195, 25307217, 
+        25307294, 25307307, 25307316, 25307368, 25307398, 25307410, 25307417, 25307443, 25307471, 25307734, 25307747, 25308388, 25311916, 25313303, 25313527, 25313706, 25313760, 25313769, 25313813, 25314243, 25322128, 25322130, 25322132, 25322134, 25322140, 25322146, 25322147, 25322148, 25322149, 25322150, 25322151, 
+        25322157, 25322158, 25322159, 25322161, 25322162, 25322163, 25322166, 25322168, 25322169, 25322170, 25322173, 25322174, 25322175, 25322176, 25322178, 25322180, 25322181, 25322183, 25322287, 25322307, 25322314, 25322315, 25322316, 25322324, 25325310, 25325960, 25329365, 25346408, 25386424]
     const POOL = 0;
     const REWARD_AMOUNT = 1;
+    const INPUT_DECIMAL = 1e18;
+    const OUTPUT_DECIMAL = 1e18;
     
     let usersA = new Map()
     let cumSupply = 0
@@ -263,6 +183,7 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
                 const userAddress = eachBuryUserInABlock.id;
                 const totalSupplyAtBlock = eachBuryInABlock.totalSupply??0;
                 const userReward = totalSupplyAtBlock ? (eachBuryUserInABlock.xShib*rewardPerBlock/totalSupplyAtBlock): 0;
+                // if(userAddress == "0x48863c213eb16127d16fd377088b118554187c49")console.log(userAddress, eachBuryUserInABlock.xShib, totalSupplyAtBlock, userReward)
                 if(usersA.has(userAddress)) {
                     usersA.set(userAddress, usersA.get(userAddress) + userReward)
                 } else {
@@ -300,7 +221,7 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
 
                 return ({
                     address: user.address,
-                    vested: BigInt(Math.floor((user.amount - claimed) * 1e18))
+                    vested: BigInt(Math.floor((user.amount - claimed) * OUTPUT_DECIMAL))
                 })
             })
             .filter(user => user.vested > BigInt(0))
@@ -317,7 +238,7 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
 
                 return ({
                     address: user.address,
-                    vested: BigInt(Math.floor((user.amount - claimed) * 1e18))
+                    vested: BigInt(Math.floor((user.amount - claimed) * OUTPUT_DECIMAL))
                 })
             })
             .filter(user => user.vested > BigInt(0))
