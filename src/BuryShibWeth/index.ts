@@ -175,8 +175,9 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
     },0)
     console.log(blockWithSSLP)
     const rewardPerBlock = REWARD_AMOUNT/blockWithSSLP;
+    const filteredBlocks = data.filter(curr=>{return !!(curr[0]?.totalSupply)})
 
-    data.forEach((eachBlockQueryResult, blockIndex) => {
+    filteredBlocks?.forEach((eachBlockQueryResult, blockIndex) => {
         eachBlockQueryResult.forEach(eachBuryInABlock => {
             eachBuryInABlock.users.forEach((eachBuryUserInABlock : any, userIndex) => {
                 // Check if the user is already marked for the block if yes don't increment

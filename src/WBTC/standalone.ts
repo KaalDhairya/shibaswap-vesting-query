@@ -15,7 +15,7 @@ type Options = {
 
 program
     .option('-s, --startBlock <number>')
-    .requiredOption('-e, --endBlock <number>')
+    .option('-e, --endBlock <number>')
     .option('-c, --claimBlock <number>')
 
 program.parse(process.argv);
@@ -53,6 +53,13 @@ async function main() {
         `./outputs/WBTC/merkle-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
         JSON.stringify(
             distribution.merkle, null, 1
+        )
+    )
+
+    fs.writeFileSync(
+        `./outputs/WBTC/lockInfo-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
+        JSON.stringify(
+            distribution.lockInfo, null, 1
         )
     )
 };

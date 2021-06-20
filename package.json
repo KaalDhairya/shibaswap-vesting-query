@@ -16,6 +16,7 @@
     "ethereumjs-util": "^7.0.8",
     "ethers": "^5.0.31",
     "fs": "^0.0.1-security",
+    "mongodb": "^3.6.9",
     "ts-node": "^9.1.1",
     "typescript": "^4.1.3"
   },
@@ -32,9 +33,11 @@
     "standalone:BuryBoneBone": "ts-node src/BuryBoneBone/standalone",
     "standalone:BuryShibWeth": "ts-node src/BuryShibWeth/standalone",
     "standalone:BuryLeashBone": "ts-node src/BuryLeashBone/standalone",
-    "generate-blacklist": "ts-node src/generate-blacklist",
+    "generate-blacklist:USDC": "ts-node src/USDC/generate-blacklist",
     "validate": "ts-node src/validate-address",
     "select": "ts-node src/select-data",
-    "build": "tsc"
+    "build": "tsc",
+    "create-db": "ts-node src/Database/create_db",
+    "create-collection": "ts-node src/Database/create_collection"
   }
 }

@@ -56,7 +56,7 @@ async function main() {
 
     console.log(contracts)
 
-    fs.writeFileSync('./USDC/src/blacklist.json', (
+    fs.writeFileSync('./WBTC/src/blacklist.json', (
         JSON.stringify(contracts.map(contract => contract['contract']), null, 2)
     ))
 };

@@ -187,9 +187,11 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
     console.log(blockWithSSLP)
     const rewardPerBlock = REWARD_AMOUNT/blockWithSSLP;
 
-    data?.forEach((blockData)=>{
-        const newUsers = blockData.users.filter(u=>u.poolId == POOL);
-        newUsers.forEach(user => {
+    const filteredBlocks = data.filter(curr=>{return !!(curr?.pools && curr.pools[POOL]?.sslpBalance)})
+
+    filteredBlocks.forEach((blockData)=>{
+        const newUsers = blockData?.users?.filter(u=>u.poolId == POOL);
+        newUsers?.forEach(user => {
             const ssplAtBlock = blockData.pools[POOL]?.sslpBalance??0;
             const userReward = ssplAtBlock ? (user.amount*rewardPerBlock/ssplAtBlock): 0;
             // console.log(ssplAtBlock, user.amount )

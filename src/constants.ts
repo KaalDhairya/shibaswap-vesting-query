@@ -15,3 +15,5 @@ export const MULTISIGS = [
 
 export const etherscanKey = ''
 export const alchemyKey = ''
+
+export const LOCK_PERIOD = 15552000000 //6 months in milliseconds
