@@ -11,24 +11,27 @@ module.exports = {
         return await shibaSwapData.buryleash.buryLeashUsers({block: block_number});
     },
     async claims(block_number) {
-        return await shibaSwapData.buryleashBoneVesting.users({block_number})
+        return await shibaSwapData.buryleashBoneVesting.users({block: block_number})
     },
     async buryBoneVestingClaims(block_number) {
-        return await shibaSwapData.buryboneBoneVesting.users({block_number})
+        return await shibaSwapData.buryboneBoneVesting.users({block: block_number})
     },
     async buryBoneUsers(block_number) {
-        return await shibaSwapData.burybone.buryBoneUsers({block_number});
+        return await shibaSwapData.burybone.buryBoneUsers({block: block_number});
     },
     async claims(block_number) {
-        return await shibaSwapData.buryboneBoneVesting.users({block_number})
+        return await shibaSwapData.buryboneBoneVesting.users({block: block_number})
     },
     async buryShibVestingClaims(block_number) {
-        return await shibaSwapData.buryshibBoneVesting.users({block_number})
+        return await shibaSwapData.buryshibBoneVesting.users({block: block_number})
     },
     async buryShibUsers(block_number) {
-        return await shibaSwapData.buryshib.buryShibUsers({block_number});
+        return await shibaSwapData.buryshib.buryShibUsers({block: block_number});
     },
     async claims(block_number) {
-        return await shibaSwapData.buryshibBoneVesting.users({block_number})
+        return await shibaSwapData.buryshibBoneVesting.users({block: block_number})
+    },
+    async topDogUsers(block_number) {
+        return await shibaSwapData.topdog.users({block: block_number})
     },
 }

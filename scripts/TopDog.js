@@ -12,12 +12,12 @@ async function fetchAndStore(blockResult) {
     const NORMALIZE_CONSTANT = 1000000000000;
     const data = await queries.topDogUsers(blockResult.blockNumber); //quering TopDog subgraph for this block
     console.log("For: ",blockResult.blockNumber)//," queryRess: ", data[0]);
-    const totalSupplyAtBlock = data[0].totalSupply;
 
-    for(j = 0;j < data[0].users.length; j++) {
-        const userAddress = data[0].users[j].id;
-        const userRewardPercentage = totalSupplyAtBlock ? (data[0].users[j].bone * NORMALIZE_CONSTANT/totalSupplyAtBlock): 0;
-        // console.log(userAddress, " userRewardPercentage: ", userRewardPercentage)
+    for(j = 0;j < data.length; j++) {
+        const userAddress = data[j].address;
+        const totalSupplyAtBlock = data[j].pool == undefined ? 0 : data[j].pool.balance;
+        const userRewardPercentage = totalSupplyAtBlock ? (data[j].amount * NORMALIZE_CONSTANT /totalSupplyAtBlock): 0;
+        console.log(userAddress, " userRewardPercentage: ", userRewardPercentage, j)
         if(usersA.has(userAddress)) {
             usersA.set(userAddress, usersA.get(userAddress) + userRewardPercentage)
         } else {
@@ -54,7 +54,7 @@ async function main() {
     try{
 
     // Cron to run after every 24 hrs to update blocks & perBlock data
-    cron.schedule('0 30 12 * * *', async () => {
+    cron.schedule('0 45 12 * * *', async () => {
         console.log("cron running...");
     
     const params = {

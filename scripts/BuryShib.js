@@ -54,7 +54,7 @@ async function main() {
     try{
 
     // Cron to run after every 24 hrs to update blocks & perBlock data
-    cron.schedule('0 30 12 * * *', async () => {
+    cron.schedule('0 40 12 * * *', async () => {
         console.log("cron running...");
     
 
