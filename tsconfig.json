@@ -69,5 +69,5 @@
 
     "resolveJsonModule": true
   },
-  "include": ["./src/*.ts"]
+  "include": ["./src/*.ts", "src/Database/create_db.ts"]
 }
