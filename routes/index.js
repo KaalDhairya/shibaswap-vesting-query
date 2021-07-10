@@ -1,7 +1,7 @@
 var express = require('express');
-// require('../scripts/BuryBone');
-// require('../scripts/BuryLeash');
-// require('../scripts/BuryShib');
+require('../scripts/BuryBone');
+require('../scripts/BuryLeash');
+require('../scripts/BuryShib');
 require('../scripts/TopDog');
 // var app = express();
 

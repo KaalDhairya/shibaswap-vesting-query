@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const rewardsCollection = mongoose.model('rewardsCollection');
 
 async function fetchAndStore(blockResult) {
+    try{
 
     let usersA = new Map()
     const NORMALIZE_CONSTANT = 1000000000000;
@@ -46,16 +47,21 @@ async function fetchAndStore(blockResult) {
     let doc = await rewardsCollection.findOneAndUpdate({ block_number: blockResult.blockNumber, contract: "BuryLeash" }, obj, { new: true, upsert: true });
 
     // console.log("Array now: ", users)
+    }catch(err){
+        console.log(err, "Error in block: ", blockResult.blockNumber);
+    }
 }
 
 async function main() {
-    console.log("start fetching blocks");
+    console.log("start fetching blocks - BuryLeash");
 
     try{
 
     // Cron to run after every 24 hrs to update blocks & perBlock data
-    cron.schedule('0 35 12 * * *', async () => {
-        console.log("cron running...");
+    // cron.schedule('0 35 12 * * *', async () => {
+    //     console.log("cron running...");
+
+    if(config.contract.BuryLeashFlag){
     
     const params = {
         contract: "BuryLeash"
@@ -81,12 +87,18 @@ async function main() {
     }
     var op=0;
     var po=0;
+    let buggyBlocks = [];
     for  (; i < res.data.result.length; i++){
         console.log("BlockNumber: ", res.data.result[i].blockNumber);
 
         if(skipFirstBlock || latestBlock[0].block_number < res.data.result[i].blockNumber){
             ++po;
-            await fetchAndStore(res.data.result[i]);
+            try{
+                await fetchAndStore(res.data.result[i]);
+            }catch(err){
+                console.log(err, "Error in block: ", res.data.result[i].blockNumber);
+                buggyBlocks.push(res.data.result[i].blockNumber);
+            }
         } else {
             /////////////////////////////////
             // skip already fetched blocks //
@@ -99,10 +111,13 @@ async function main() {
 
     console.log("BuryLeash: Already saved blocks: ", op, " New blocks added :", po);
 
-    let modelRes = await rewardsCollection.find();
+    let modelRes = await rewardsCollection.find(params);
 
-    console.log("Execution completed: DB now ", modelRes)
-    });
+    console.log("Execution completed: DB now ", modelRes);
+    console.log("Issue occured in blocks: ", buggyBlocks);
+
+    }
+    // });
     } catch (err) {
         console.log("Error throw: BuryBone: ", err);
     }
