@@ -6,7 +6,7 @@ import queries from './queries';
 import { LOCK_PERIOD, VESTING_POOL_ID, VESTING_START } from "../constants";
 import Blacklist from './blacklist.json';
 import {Promise} from "bluebird"
-import { fetch, insert } from '../Database/utils'
+import { fetchAll, fetchOne, insert } from '../Database/utils'
 import { USER_INFO_COLLECTION } from '../Database/constants';
 
 type Info = shibaSwapData.topdog.Info;
@@ -43,6 +43,13 @@ type Data = {
 const VESTED_AMOUNT = 0;
 const INPUT_DECIMAL = 1e18;
 const OUTPUT_DECIMAL = 1e8;
+const POOL = 15;
+const REWARD_AMOUNT = 5000;   //33% of total rewards
+const LockPercent = 67;
+const UnLockPercent = 33;
+const WEEK = 2;
+const REWARD_WEEK = 0;
+const REWARD_TOKEN = "WBTC"
 
 export default async function getDistribution(options: Options) {
     options.startBlock = options.startBlock ?? VESTING_START;
@@ -75,12 +82,14 @@ async function fetchData(blockNumber: number) {
     });
 }
 
+function normalise(amount){
+    return Math.floor(amount*OUTPUT_DECIMAL)
+}
+
 async function CalculateUserRewards(){
-    let blocks:number[] = [25288382, 25288387, 25288756, 25288768, 25288891, 25288893, 25288895, 25288896, 25288898, 25289114, 25289243, 25289305, 25289389, 25289390, 25289391, 25289392, 25289394, 25289409, 25289410, 25289523, 25289728, 25289758, 25289759, 25289916, 25290096, 25290159, 25290194, 25290681, 25290685, 25290696, 25290829, 25290952, 25290958, 25291039, 25291115, 25291224, 25291266, 25291269, 
-        25291403, 25291494, 25291510, 25291517, 25291537, 25291701, 25291842, 25291846, 25291892, 25291924, 25292111, 25292113, 25292115, 25292401, 25292612, 25292642, 25292656, 25292704, 25292716]
+    // let blocks:number[] = [12777015, 12777016, 12777017, 12777018, 12777019, 12777020, 12777021, 12777022, 12777023, 12777024, 12777025, 12777026, 12777027, 12777028, 12777029, 12777030, 12777031, 12777032, 12777033]
+    let blocks = [12777040, 12777041, 12777042, 12777043, ]
     let usersA = new Map()
-    const POOL = 0;
-    const REWARD_AMOUNT = 10000;   //33% of total rewards
 
     const data = await Promise.mapSeries(blocks, (block) => fetchData(block))
     const blockWithSSLP = data.reduce((num, curr)=>{
@@ -102,14 +111,11 @@ async function CalculateUserRewards(){
                 usersA.set(user.address, userReward)
             }
         });
-        // cumSSLP+= blockData.pools[POOL]?.sslpBalance??0;
     })
     return usersA;
 }
 
 async function finalize(startBlock: number, endBlock: number, claimBlock: number) {
-    const WEEK = 1;
-    const rewardWeek = 0;
 
     // Calculate the user rewards per block for the week. This is 33% of the total reward user should get.
     const usersA = await CalculateUserRewards()
@@ -124,10 +130,10 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
         const account = address.toLowerCase()
         const week = WEEK
         const week_date = (new Date()).getTime()
-        const LockedThisWeek =  usersA.get(address) * 67 / 33      // Calculate the rest of 67% of the reward
+        const RewardOfWeek =  normalise(usersA.get(address)/INPUT_DECIMAL)   // 33% reward available to claim right away
+        const LockedThisWeek =  Math.floor(RewardOfWeek * LockPercent / UnLockPercent)      // Calculate the rest of 67% of the reward
         const LockReleaseDate =  (new Date()).getTime() + LOCK_PERIOD // Lock release date for the locked reward of the week i.e. after 6 months
-        const RewardOfWeek =  usersA.get(address)   // 33% reward available to claim right away
-        const rewardToken =  "WBTC"             // reward token
+        const rewardToken =  REWARD_TOKEN             // reward token
         let TotalLocked = LockedThisWeek    // Total locked till now
         let TotalVested =  0                // Total vested till now i.e. Released amount till now. 0 for the 1st week
         let VestedThisWeek =  0             // Released amount this week. 0 for the 1st week
@@ -136,29 +142,34 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
         let ClaimableThisWeek =  RewardOfWeek   // Total claimable amount this week. ronly 33% of the week for 1st week.
         let TotalClaimable =  ClaimableThisWeek         // Cumulative claimable including what is withdrawn by user. Only for analysis
 
-        // Calculate values with previous data if not 1st week
-        if(WEEK > 1){
-            const PREV_WEEK  = WEEK - 1
-            const filter = { "week": PREV_WEEK, "account": address, "rewardToken": "WBTC" }
-            const lastWeekInfo = fetch(USER_INFO_COLLECTION, filter)
+        const PREV_WEEK  = WEEK - 1
+        const filter = { "week": PREV_WEEK, "account": account, "rewardToken": REWARD_TOKEN }
+        const lastWeekInfo = await fetchOne(USER_INFO_COLLECTION, filter)
+        console.log("Lastweek")
+        console.log(lastWeekInfo)
+        if(lastWeekInfo && lastWeekInfo!==null){
             TotalLocked = lastWeekInfo.TotalLocked + LockedThisWeek - lastWeekInfo.VestedThisWeek   //Total locked amount of the user
+            //NEED TO CHECK IF ADDRESS LOWECASE
             TotalClaimedTill = claims.find(u => address === u.id)?.totalClaimed ?? 0              // Total claimed till ow of the user
-            ClaimedPrevWeek = TotalClaimedTill - lastWeekInfo.TotalClaimedTill                      // Claimed amount prev week
-            const filter1= {"week": rewardWeek, "account": address, "rewardToken": "WBTC"}
-            const rewardWeekInfo  = fetch(USER_INFO_COLLECTION, filter1)
-            VestedThisWeek = rewardWeekInfo.LockedThisWeek             // Find the lock released for the week
-            TotalVested = lastWeekInfo.TotalVested + VestedThisWeek               // Total vested till now
-            TotalClaimable = lastWeekInfo.TotalClaimable + RewardOfWeek + VestedThisWeek      // Total Claimable till now (every week's 33% + all vested reward)
+            ClaimedPrevWeek = normalise(TotalClaimedTill) - lastWeekInfo.TotalClaimedTill                      // Claimed amount prev week
+            const filter1= {"week": REWARD_WEEK, "account": account, "rewardToken": REWARD_TOKEN}
+            const rewardWeekInfo  = await fetchOne(USER_INFO_COLLECTION, filter1)
+            TotalVested = lastWeekInfo.TotalVested 
+            TotalClaimable = lastWeekInfo.TotalClaimable + RewardOfWeek
+            if(rewardWeekInfo){
+                VestedThisWeek = rewardWeekInfo.LockedThisWeek             // Find the lock released for the week
+                TotalVested += VestedThisWeek               // Total vested till now
+                TotalClaimable += VestedThisWeek      // Total Claimable till now (every week's 33% + all vested reward)
+            }
             ClaimableThisWeek = TotalClaimable  - TotalClaimedTill              // Claimable of this week
-        } 
-
+        }
 
         // Create user object to store for this week
         const user_obj = {
             account : account,
             week : week,
             week_date: week_date,
-            LockedThisWeek :  LockedThisWeek,
+            LockedThisWeek : LockedThisWeek,
             LockReleaseDate :  LockReleaseDate,
             RewardOfWeek :  RewardOfWeek,
             rewardToken :  rewardToken,
@@ -176,19 +187,20 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
 
     // Users who didn't participated in the current week but have claimable or locked amount
     if(WEEK > 1){
-        const prev_week_users = fetch(USER_INFO_COLLECTION, {"week": WEEK - 1, "rewardToken": "WBTC"})
+        const prev_week_users = await fetchAll(USER_INFO_COLLECTION, {"week": WEEK - 1, "rewardToken": REWARD_TOKEN})
+        console.log("prev_week_users")
+        console.log(prev_week_users)
         const uncommon_users = prev_week_users.filter(u => !users.some(u2 => u.account == u2.account))
-        uncommon_users.forEach(prev_week_user => {
+        await uncommon_users.forEach(async prev_week_user => {
             const TotalClaimedTill =  claims.find(u => prev_week_user.account === u.id)?.totalClaimed ?? 0
-            const claimedPrevWeek = TotalClaimedTill - prev_week_user.TotalClaimedTill
-            const totalClaimable = prev_week_user.TotalClaimable
-            const filter1= {"week": rewardWeek, "account": address, "rewardToken": "WBTC"}
-            const rewardWeekInfo  = fetch(USER_INFO_COLLECTION, filter1)
-            const VestedThisWeek = rewardWeekInfo.LockedThisWeek                                      // Find the lock released for the week
+            const claimedPrevWeek = normalise(TotalClaimedTill) - prev_week_user.TotalClaimedTill
+            const filter1= {"week": REWARD_WEEK, "account": address, "rewardToken": REWARD_TOKEN}
+            const rewardWeekInfo  = await fetchOne(USER_INFO_COLLECTION, filter1)
+            const VestedThisWeek = rewardWeekInfo?.LockedThisWeek  ?? 0                                    // Find the lock released for the week
             const TotalVested = prev_week_user.TotalVested  +  VestedThisWeek              // Total vested till now
             const TotalClaimable = prev_week_user.TotalClaimable + VestedThisWeek      // Total Claimable till now (every week's 33% + all vested reward)
-            const ClaimableThisWeek = TotalClaimable  - TotalClaimedTill              // Claimable of this week
-            if(prev_week_user.TotalLocked != 0 &&  totalClaimable != 0){
+            const ClaimableThisWeek = TotalClaimable  - normalise(TotalClaimedTill)              // Claimable of this week
+            if(prev_week_user.TotalLocked != 0 &&  TotalClaimable != 0){
                 const user_obj = {
                     account : prev_week_user.account,
                     week : WEEK,
@@ -223,7 +235,7 @@ function filterUsers(users, claims){
             .map(user => {
                 return ({
                     address: user.account,
-                    vested: BigInt(Math.floor((user.ClaimableThisWeek) * OUTPUT_DECIMAL))
+                    vested: BigInt(Math.floor((user.ClaimableThisWeek)))
                 })
             })
             .filter(user => user.vested > BigInt(0))
@@ -236,7 +248,7 @@ function filterUsers(users, claims){
             .map(user => {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
                 return ({
                     address: user.account,
-                    vested: BigInt(Math.floor((user.ClaimableThisWeek) * OUTPUT_DECIMAL))
+                    vested: BigInt(Math.floor((user.ClaimableThisWeek)))
                 })
             })
             .filter(user => user.vested > BigInt(0))
@@ -248,7 +260,7 @@ function filterUsers(users, claims){
             .filter(user => !blacklist.includes(user.address))
             .map(user => {
                 return ({
-                    address: user.address,
+                    address: user.account,
                     locked: user.TotalLocked,
                     nextLockDate: (new Date()).getTime() + LOCK_PERIOD,
                     totalClaimed: user.TotalClaimedTill
