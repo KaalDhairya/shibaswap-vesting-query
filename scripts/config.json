@@ -1,0 +1,13 @@
+{
+    "etherscanUrl": "api-kovan.etherscan.io",
+    "contract" : {
+        "TopDog": "0xe413965c2139c1bbe520279e55b205cca19b3ab9",
+        "BuryBone": "0xafd395a2a95cbd13721f8077fb6f55e14d48e554",
+        "BuryLeash": "0xac05f1fE985541377D22a9F2fE7cE954175ebB5E",
+        "BuryShib": "0xad7ac262cc107b7e72d775e5576319296a377e5d",
+        "TopDogFlag": false,
+        "BuryBoneFlag": false,
+        "BuryLeashFlag": true,
+        "BuryShibFlag": false
+    }
+  }
