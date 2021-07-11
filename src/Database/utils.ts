@@ -8,7 +8,7 @@ export function insert(record, collection){
         var dbo = db.db(DB);
         dbo.collection(collection).updateOne({week: record.week, account: record.account, rewardToken: record.rewardToken},{$set: record}, {upsert:true}, function(err, res) {
           if (err) throw err;
-          console.log("1 document inserted", res);
+          // console.log("1 document inserted");
           db.close();
         });
       });

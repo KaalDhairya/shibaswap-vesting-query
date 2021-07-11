@@ -7,7 +7,7 @@ import { LOCK_PERIOD, VESTING_POOL_ID, VESTING_START } from "../constants";
 import Blacklist from './blacklist.json';
 import {Promise} from "bluebird"
 import { fetchAll, fetchOne, insert } from '../Database/utils'
-import { USER_INFO_COLLECTION } from '../Database/constants';
+import { USER_INFO_COLLECTION, WEEKLY_REWARD_INFO_COLLECTION } from '../Database/constants';
 
 type Info = shibaSwapData.topdog.Info;
 
@@ -43,12 +43,12 @@ type Data = {
 const VESTED_AMOUNT = 0;
 const INPUT_DECIMAL = 1e18;
 const OUTPUT_DECIMAL = 1e8;
-const POOL = 15;
+const POOL = 1;
 const REWARD_AMOUNT = 5000;   //33% of total rewards
 const LockPercent = 67;
 const UnLockPercent = 33;
-const WEEK = 3;
-const REWARD_WEEK = 1;
+const WEEK = 1;
+const REWARD_WEEK = 0;
 const REWARD_TOKEN = "WBTC"
 
 export default async function getDistribution(options: Options) {
@@ -60,7 +60,7 @@ export default async function getDistribution(options: Options) {
     // const data = redirect(await fetchData(options.startBlock, options.endBlock, options.claimBlock));
     const final = await finalize(options.startBlock, options.endBlock, options.claimBlock);
 
-    console.log(final.users)
+    // console.log(final.users)
 
     return {
         amounts: final.users,
@@ -86,7 +86,30 @@ function normalise(amount){
     return Math.floor(amount*OUTPUT_DECIMAL)
 }
 
-async function CalculateUserRewards(){
+async function CalculateUserRewards(startBlock, endBlock){
+    let userInfo = new Map()
+    if(startBlock && endBlock){
+        const filter = {"block_number":{ $gte: startBlock, $lte: endBlock } }
+        const rewardData = await fetchAll(WEEKLY_REWARD_INFO_COLLECTION, filter)
+        // console.log("rewardData",rewardData)
+        const rewardPerBlock = REWARD_AMOUNT/rewardData.length;
+        console.log("rewardPerBlock", rewardData.length, rewardPerBlock)
+        rewardData.forEach(blockInfo => {
+            blockInfo.user_share.forEach(user => {
+                const userReward = (rewardPerBlock*user.amount)/blockInfo.normalize_exponent
+                if(userInfo.has(user.address)) {
+                    userInfo.set(user.address, userInfo.get(user.address) + userReward)
+                } else {
+                    userInfo.set(user.address, userReward)
+                }
+            });
+        });
+    }
+    return userInfo
+}
+
+
+async function CalculateUserRewardsManual(){
     // let blocks:number[] = [12777015, 12777016, 12777017, 12777018, 12777019, 12777020, 12777021, 12777022, 12777023, 12777024, 12777025, 12777026, 12777027, 12777028, 12777029, 12777030, 12777031, 12777032, 12777033]
     let blocks = [12777056, 12777057, 12777058, 12777059, 12777060, 12777062, 12777063, 12777064, 12777065]
     let usersA = new Map()
@@ -118,12 +141,14 @@ async function CalculateUserRewards(){
 async function finalize(startBlock: number, endBlock: number, claimBlock: number) {
 
     // Calculate the user rewards per block for the week. This is 33% of the total reward user should get.
-    const usersA = await CalculateUserRewards()
+    const usersA = await CalculateUserRewards(startBlock, endBlock)
+    // console.log(usersA)
 
     // Rewars claimed by the users till now 
     const claims = await queries.claims(claimBlock);
 
     let users:any[] = []
+    let totalR = 0
     for(var address of usersA.keys()){
         // Initialising values assuming first week
         const account = address.toLowerCase()
@@ -140,6 +165,8 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
         let ClaimedPrevWeek =  0                // Claimed amount previous week. 0 for the 1st week
         let ClaimableThisWeek =  RewardOfWeek   // Total claimable amount this week. ronly 33% of the week for 1st week.
         let TotalClaimable =  ClaimableThisWeek         // Cumulative claimable including what is withdrawn by user. Only for analysis
+
+        totalR+=RewardOfWeek
 
         const PREV_WEEK  = WEEK - 1
         const filter = { "week": PREV_WEEK, "account": account, "rewardToken": REWARD_TOKEN }
@@ -182,6 +209,8 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
         insert(user_obj, USER_INFO_COLLECTION)
         users.push(user_obj)
     }
+
+    console.log("TotalR", totalR)
 
     // Users who didn't participated in the current week but have claimable or locked amount
     if(WEEK > 1){
