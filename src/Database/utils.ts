@@ -8,7 +8,7 @@ export function insert(record, collection){
         var dbo = db.db(DB);
         dbo.collection(collection).updateOne({week: record.week, account: record.account, rewardToken: record.rewardToken},{$set: record}, {upsert:true}, function(err, res) {
           if (err) throw err;
-          // console.log("1 document inserted");
+          console.log("1 document inserted", res);
           db.close();
         });
       });
@@ -18,7 +18,7 @@ export async function fetchAll(collection, filter): Promise<any>{
   const db = await MongoClient.connect(URL);
     var dbo = db.db(DB);
     const result = await dbo.collection(collection).find(filter).toArray()
-    console.log(result);
+    // console.log(result);
     db.close();
     return result;
 }
@@ -27,7 +27,7 @@ export async function fetchOne(collection, filter): Promise<any>{
     const db = await MongoClient.connect(URL);
     var dbo = db.db(DB);
     const result = await dbo.collection(collection).findOne(filter)
-    console.log(result);
+    // console.log("inserted",result);
     db.close();
     return result;
 

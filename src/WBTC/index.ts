@@ -47,8 +47,8 @@ const POOL = 15;
 const REWARD_AMOUNT = 5000;   //33% of total rewards
 const LockPercent = 67;
 const UnLockPercent = 33;
-const WEEK = 2;
-const REWARD_WEEK = 0;
+const WEEK = 3;
+const REWARD_WEEK = 1;
 const REWARD_TOKEN = "WBTC"
 
 export default async function getDistribution(options: Options) {
@@ -88,7 +88,7 @@ function normalise(amount){
 
 async function CalculateUserRewards(){
     // let blocks:number[] = [12777015, 12777016, 12777017, 12777018, 12777019, 12777020, 12777021, 12777022, 12777023, 12777024, 12777025, 12777026, 12777027, 12777028, 12777029, 12777030, 12777031, 12777032, 12777033]
-    let blocks = [12777040, 12777041, 12777042, 12777043, ]
+    let blocks = [12777056, 12777057, 12777058, 12777059, 12777060, 12777062, 12777063, 12777064, 12777065]
     let usersA = new Map()
 
     const data = await Promise.mapSeries(blocks, (block) => fetchData(block))
@@ -119,7 +119,6 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
 
     // Calculate the user rewards per block for the week. This is 33% of the total reward user should get.
     const usersA = await CalculateUserRewards()
-    console.log(usersA)
 
     // Rewars claimed by the users till now 
     const claims = await queries.claims(claimBlock);
@@ -145,10 +144,8 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
         const PREV_WEEK  = WEEK - 1
         const filter = { "week": PREV_WEEK, "account": account, "rewardToken": REWARD_TOKEN }
         const lastWeekInfo = await fetchOne(USER_INFO_COLLECTION, filter)
-        console.log("Lastweek")
-        console.log(lastWeekInfo)
         if(lastWeekInfo && lastWeekInfo!==null){
-            TotalLocked = lastWeekInfo.TotalLocked + LockedThisWeek - lastWeekInfo.VestedThisWeek   //Total locked amount of the user
+            TotalLocked = lastWeekInfo.TotalLocked + LockedThisWeek   //Total locked amount of the user
             //NEED TO CHECK IF ADDRESS LOWECASE
             TotalClaimedTill = claims.find(u => address === u.id)?.totalClaimed ?? 0              // Total claimed till ow of the user
             ClaimedPrevWeek = normalise(TotalClaimedTill) - lastWeekInfo.TotalClaimedTill                      // Claimed amount prev week
@@ -160,6 +157,7 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
                 VestedThisWeek = rewardWeekInfo.LockedThisWeek             // Find the lock released for the week
                 TotalVested += VestedThisWeek               // Total vested till now
                 TotalClaimable += VestedThisWeek      // Total Claimable till now (every week's 33% + all vested reward)
+                TotalLocked -= VestedThisWeek
             }
             ClaimableThisWeek = TotalClaimable  - TotalClaimedTill              // Claimable of this week
         }
@@ -188,8 +186,6 @@ async function finalize(startBlock: number, endBlock: number, claimBlock: number
     // Users who didn't participated in the current week but have claimable or locked amount
     if(WEEK > 1){
         const prev_week_users = await fetchAll(USER_INFO_COLLECTION, {"week": WEEK - 1, "rewardToken": REWARD_TOKEN})
-        console.log("prev_week_users")
-        console.log(prev_week_users)
         const uncommon_users = prev_week_users.filter(u => !users.some(u2 => u.account == u2.account))
         await uncommon_users.forEach(async prev_week_user => {
             const TotalClaimedTill =  claims.find(u => prev_week_user.account === u.id)?.totalClaimed ?? 0
