@@ -1,5 +1,5 @@
-var cron = require('node-cron');
-var axios = require('axios');
+let cron = require('node-cron');
+let axios = require('axios');
 const queries = require('./queries');
 const config = require('./config.json');
 
@@ -29,7 +29,7 @@ async function fetchAndStore(blockResult) {
     console.log("MAP Users: ", usersA)
 
     let users = []
-    for(var address of usersA.keys()){
+    for(let address of usersA.keys()){
         users.push({
             address: address,
             amount: Number(usersA.get(address))
@@ -37,11 +37,11 @@ async function fetchAndStore(blockResult) {
     }
 
 
-    var obj = {
+    let obj = {
         user_share_map: usersA,
         user_share: users,
         normalize_exponent: NORMALIZE_CONSTANT,
-        date: blockResult.timeStamp
+        date: Date.now()
     }
 
     let doc = await rewardsCollection.findOneAndUpdate({ block_number: blockResult.blockNumber, contract: "BuryLeash" }, obj, { new: true, upsert: true });
@@ -60,45 +60,76 @@ async function main() {
     // Cron to run after every 24 hrs to update blocks & perBlock data
     // cron.schedule('0 35 12 * * *', async () => {
     //     console.log("cron running...");
-
     if(config.contract.BuryLeashFlag){
+
     
     const params = {
         contract: "BuryLeash"
     }
-
+    let latestBlockNumber = 0;
     let latestBlock = await rewardsCollection.find(params).limit(1).sort({$natural:-1}); // Fetching last block in DB for BuryLeash
+    if(latestBlock[0] == undefined){
+        latestBlockNumber = 0;
+    } else {
+        latestBlockNumber = latestBlock[0].block_number;
+    }
 
-    console.log("model: ", latestBlock)
 
-    const URL = `https://${config.etherscanUrl}/api?module=account&action=txlist&address=${config.contract.BuryLeash}&startblock=0&endblock=99999999&sort=asc`;
-    let res = await axios.get(URL);
+    // const URL = `https://${config.etherscanUrl}/api?module=account&action=txlist&address=${config.contract.BuryLeash}&startblock=0&endblock=99999999&sort=asc`;
+    // let res = await axios.get(URL);
+    let reachedLast = false;
+    let page = 1;
+    let offset = 10;
+    let startBlock = 12808057;
+    let endBlock = 12808072;
+    let returnObj = [];
+    lastestBlockNumber = latestBlockNumber;
+    console.log("lastestBlockNumber: ", latestBlockNumber)
+    while(!reachedLast){
+        const URL = `https://${config.etherscanUrl}/api?module=account&action=txlist&address=${config.contract.BuryLeash}&startblock=${startBlock}&endblock=${endBlock}&page=${page}&offset=${offset}&sort=asc&apikey=H2EPP8FBXTDEDAAN93Z4975HU6FZYSFQY8`;
+        let res = await axios.get(URL);
+        console.log("Page: ", page," * ", res.data.result.length, " per ", offset);
+        let blockArray = [];
+        for(let i=0; i<res.data.result.length; i++){
+            blockArray.push(res.data.result[i].blockNumber);
+        }
+        if(res.data.result.length<offset){
+            reachedLast = true;
+        } else {
+            page++;
+        }
+        returnObj = [...returnObj, ...blockArray];
+    }
 
+    let uniqueBlocks = [...new Set(returnObj)];
     
-    console.log("Resss: ", res.data.result.length);
+    // console.log("Resss: ", returnObj);
+    console.log("Resss Length: ", returnObj.length);
+    console.log("Unique blocks length: ", uniqueBlocks.length);
 
-    var i;
-    var skipFirstBlock = false;
-    if(latestBlock[0] != undefined){
+    let i;
+    let skipFirstBlock = false;
+    if(latestBlockNumber != 0){
         i=0;
     } else {
         i=1;
         skipFirstBlock = true;  //contract blocks not saved till now, so ignoring first block  (the contract deployment block)
     }
-    var op=0;
-    var po=0;
+    let op=0;
+    let po=0;
     let buggyBlocks = [];
-    for  (; i < res.data.result.length; i++){
-        console.log("BlockNumber: ", res.data.result[i].blockNumber);
+    for  (; i < uniqueBlocks.length; i++){
+        console.log("BlockNumber: ", uniqueBlocks[i]);
 
-        if(skipFirstBlock || latestBlock[0].block_number < res.data.result[i].blockNumber){
+        if(skipFirstBlock || latestBlockNumber < uniqueBlocks[i]){
             ++po;
             try{
-                await fetchAndStore(res.data.result[i]);
+                await fetchAndStore(uniqueBlocks[i]);
             }catch(err){
-                console.log(err, "Error in block: ", res.data.result[i].blockNumber);
-                buggyBlocks.push(res.data.result[i].blockNumber);
+                console.log(err, "Error in block: ", uniqueBlocks[i]);
+                buggyBlocks.push(uniqueBlocks[i]);
             }
+
         } else {
             /////////////////////////////////
             // skip already fetched blocks //
@@ -119,7 +150,7 @@ async function main() {
     }
     // });
     } catch (err) {
-        console.log("Error throw: BuryBone: ", err);
+        console.log("Error throw: BuryLeash: ", err);
     }
 
 }

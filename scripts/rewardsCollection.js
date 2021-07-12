@@ -9,6 +9,9 @@ var rewardsCollection = new mongoose.Schema({
         type: String,
         required: 'This field is required.'
     },
+    poolId: {
+        type: Number
+    },
     user_share_map: {
         type: Map,
         required: 'This field is required.'

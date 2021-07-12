@@ -1,13 +1,13 @@
 {
-    "etherscanUrl": "api-kovan.etherscan.io",
+    "etherscanUrl": "api.etherscan.io",
     "contract" : {
-        "TopDog": "0xe413965c2139c1bbe520279e55b205cca19b3ab9",
-        "BuryBone": "0xafd395a2a95cbd13721f8077fb6f55e14d48e554",
-        "BuryLeash": "0xac05f1fE985541377D22a9F2fE7cE954175ebB5E",
-        "BuryShib": "0xad7ac262cc107b7e72d775e5576319296a377e5d",
-        "TopDogFlag": false,
+        "TopDog": "0x94235659cF8b805B2c658f9ea2D6d6DDbb17C8d7",
+        "BuryBone": "0xf7A0383750feF5AbaCe57cc4C9ff98e3790202b3",
+        "BuryLeash": "0xa57D319B3Cf3aD0E4d19770f71E63CF847263A0b",
+        "BuryShib": "0xB4a81261b16b92af0B9F7C4a83f1E885132D81e4",
+        "TopDogFlag": true,
         "BuryBoneFlag": false,
-        "BuryLeashFlag": true,
+        "BuryLeashFlag": false,
         "BuryShibFlag": false
     }
   }
