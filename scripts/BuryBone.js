@@ -48,7 +48,7 @@ async function fetchAndStore(blockResult) {
 
     // console.log("Array now: ", users)
     }catch(err){
-        console.log(err, "Error in block: ", blockResult.blockNumber);
+        console.log(err, "Error in block: ", blockResult);
     }
 }   
 

@@ -44,11 +44,11 @@ async function fetchAndStore(blockResult) {
         date: Date.now()
     }
 
-    let doc = await rewardsCollection.findOneAndUpdate({ block_number: blockResult.blockNumber, contract: "BuryShib" }, obj, { new: true, upsert: true });
+    let doc = await rewardsCollection.findOneAndUpdate({ block_number: blockResult, contract: "BuryShib" }, obj, { new: true, upsert: true });
 
     // console.log("Array now: ", users)
     }catch(err){
-        console.log(err, "Error in block: ", blockResult.blockNumber);
+        console.log(err, "Error in block: ", blockResult);
     }
 }
 
@@ -130,7 +130,7 @@ async function main() {
                 console.log(err, "Error in block: ", uniqueBlocks[i]);
                 buggyBlocks.push(uniqueBlocks[i]);
             }
-            
+
         } else {
             /////////////////////////////////
             // skip already fetched blocks //

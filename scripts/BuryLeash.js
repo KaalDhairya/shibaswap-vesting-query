@@ -11,8 +11,8 @@ async function fetchAndStore(blockResult) {
 
     let usersA = new Map()
     const NORMALIZE_CONSTANT = 1000000000000;
-    const data = await queries.buryLeashUsers(blockResult.blockNumber); //quering BuryLeash subgraph for this block
-    console.log("For: ",blockResult.blockNumber)//," queryRess: ", data[0]);
+    const data = await queries.buryLeashUsers(blockResult); //quering BuryLeash subgraph for this block
+    console.log("For: ",blockResult)//," queryRess: ", data[0]);
     const totalSupplyAtBlock = data[0].totalSupply;
 
     for(j = 0;j < data[0].users.length; j++) {
@@ -44,11 +44,11 @@ async function fetchAndStore(blockResult) {
         date: Date.now()
     }
 
-    let doc = await rewardsCollection.findOneAndUpdate({ block_number: blockResult.blockNumber, contract: "BuryLeash" }, obj, { new: true, upsert: true });
+    let doc = await rewardsCollection.findOneAndUpdate({ block_number: blockResult, contract: "BuryLeash" }, obj, { new: true, upsert: true });
 
     // console.log("Array now: ", users)
     }catch(err){
-        console.log(err, "Error in block: ", blockResult.blockNumber);
+        console.log(err, "Error in block: ", blockResult);
     }
 }
 
