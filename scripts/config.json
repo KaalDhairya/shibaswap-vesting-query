@@ -6,8 +6,8 @@
         "BuryLeash": "0xa57D319B3Cf3aD0E4d19770f71E63CF847263A0b",
         "BuryShib": "0xB4a81261b16b92af0B9F7C4a83f1E885132D81e4",
         "TopDogFlag": true,
-        "BuryBoneFlag": false,
-        "BuryLeashFlag": false,
-        "BuryShibFlag": false
+        "BuryBoneFlag": true,
+        "BuryLeashFlag": true,
+        "BuryShibFlag": true
     }
   }
