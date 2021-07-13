@@ -35,6 +35,6 @@ module.exports = {
         return await shibaSwapData.topdog.users({block: block_number})
     },
     async topDogPools(block_number) {
-        return await shibaSwapData.topdog.rewardPools({block: block_number})
+        return await shibaSwapData.topdog.pools({block: block_number})
     },
 }

@@ -1,13 +1,18 @@
 {
     "etherscanUrl": "api.etherscan.io",
+    "infuraUrl": "https://mainnet.infura.io/v3/6dab407582414625bc25b19122311c8b",
     "contract" : {
         "TopDog": "0x94235659cF8b805B2c658f9ea2D6d6DDbb17C8d7",
         "BuryBone": "0xf7A0383750feF5AbaCe57cc4C9ff98e3790202b3",
         "BuryLeash": "0xa57D319B3Cf3aD0E4d19770f71E63CF847263A0b",
         "BuryShib": "0xB4a81261b16b92af0B9F7C4a83f1E885132D81e4",
-        "TopDogFlag": true,
-        "BuryBoneFlag": false,
+        "TopDogFlag": false,
+        "BuryBoneFlag": true,
         "BuryLeashFlag": false,
-        "BuryShibFlag": false
+        "BuryShibFlag": false,
+        "BuryBoneStartBlock": 12771565,
+        "BuryLeashStartBlock": 12771565,
+        "BuryShibStartBlock": 12771572,
+        "TopDogStartBlock": 12771648
     }
   }
