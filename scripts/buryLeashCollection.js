@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-var rewardsCollection = new mongoose.Schema({
+var buryLeashCollection = new mongoose.Schema({
     block_number: {
         type: Number,
         required: 'This field is required.'
@@ -33,4 +33,4 @@ var rewardsCollection = new mongoose.Schema({
     }
 });
 
-mongoose.model('rewardsCollection', rewardsCollection);
+mongoose.model('buryLeashCollection', buryLeashCollection);

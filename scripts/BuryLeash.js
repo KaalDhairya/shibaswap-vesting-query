@@ -4,54 +4,86 @@ const queries = require('./queries');
 const config = require('./config.json');
 const Web3 = require('web3');
 const mongoose = require('mongoose');
-const rewardsCollection = mongoose.model('rewardsCollection');
+const buryLeashCollection = mongoose.model('buryLeashCollection');
 
 let lastSslpBalance = undefined;
 let usersLength = 0;
+const skipBlockNumber = 60;
 async function fetchAndStore(blockResult) {
     try{
 
+    let stillLeft = true;
+    let skipThisBlock = false;
+    let last_id = "";
     let usersA = new Map()
     const NORMALIZE_CONSTANT = 1000000000000;
-    const data = await queries.buryLeashUsers(blockResult); //quering BuryLeash subgraph for this block
-    console.log("For: ",blockResult," queryRess: ", data);
-    const totalSupplyAtBlock = data[0].totalSupply;
-
-    if(lastSslpBalance == totalSupplyAtBlock && usersLength == data[0].users.length){
-        console.log("EX: ",totalSupplyAtBlock, lastSslpBalance, usersLength, data[0].users.length)
-        console.log("Found same");
+    console.log("\n new block started: ", blockResult, "\n")
+    while(stillLeft){
+    const data = await queries.buryLeashRewardsUsers(blockResult, last_id); //quering BuryLeash subgraph for this block
+    // console.log(lastSslpBalance, data.totalSupply," For: ",blockResult," .. ",usersLength, " userCount", data.userCount, "this.length of users: ", data.users.length, "lastID: ", last_id);
+    console.log(" For: ",blockResult," - ",data.users.length, "last id: ", last_id);
+    if(lastSslpBalance == data.totalSupply){
+        console.log("skipped: ", blockResult)
+        skipThisBlock = true;
+        break;
+    }
+    if(data.users.length == 0){
+        stillLeft = false;
+        lastSslpBalance = data.totalSupply;
+        usersLength = data.userCount;  
+        console.log("Reached end for this block: ", blockResult) 
     }else{
-        lastSslpBalance = totalSupplyAtBlock;
-        usersLength = data[0].users.length;
-        console.log("Found different")
-    for(j = 0;j < data[0].users.length; j++) {
-        const userAddress = data[0].users[j].id;
-        const userRewardPercentage = totalSupplyAtBlock ? (data[0].users[j].xLeash * NORMALIZE_CONSTANT/totalSupplyAtBlock): 0;
-        usersA.set(userAddress, userRewardPercentage)
+        console.log("For: ",blockResult, data.userCount, "length: ", data.users.length," queryRess: FROM ", data.users[0]," - ", data.users[data.users.length-1]);
+        for(j = 0;j < data.users.length; j++) {
+            const userAddress = data.users[j].id;
+            const totalSupplyAtBlock = data.totalSupply == undefined ? 0 : data.totalSupply;
+            const userRewardPercentage = totalSupplyAtBlock ? (data.users[j].xLeash * NORMALIZE_CONSTANT /totalSupplyAtBlock): 0;
+            console.log(userAddress, " userRewardPercentage: ", userRewardPercentage, j)
+            usersA.set(userAddress, userRewardPercentage)
+        }
+        last_id = data.users[data.users.length-1].id;
+    
     }
-
-    console.log("MAP Users: ", usersA)
-
-    let users = []
-    for(let address of usersA.keys()){
-        users.push({
-            address: address,
-            amount: Number(usersA.get(address))
-        })
     }
+    // const data = await queries.buryLeashUsers(blockResult); //quering BuryLeash subgraph for this block
+    // console.log("For: ",blockResult," queryRess: ", data);
+    // const totalSupplyAtBlock = data[0].totalSupply;
+
+    // if(lastSslpBalance == totalSupplyAtBlock && usersLength == data[0].users.length){
+    //     console.log("EX: ",totalSupplyAtBlock, lastSslpBalance, usersLength, data[0].users.length)
+    //     console.log("Found same");
+    // }else{
+    //     lastSslpBalance = totalSupplyAtBlock;
+    //     usersLength = data[0].users.length;
+    //     console.log("Found different")
+    // for(j = 0;j < data[0].users.length; j++) {
+    //     const userAddress = data[0].users[j].id;
+    //     const userRewardPercentage = totalSupplyAtBlock ? (data[0].users[j].xLeash * NORMALIZE_CONSTANT/totalSupplyAtBlock): 0;
+    //     usersA.set(userAddress, userRewardPercentage)
+    // }
+
+    // console.log("MAP Users: ", usersA)
+
+    if(!skipThisBlock){
+        let users = []
+        for(let address of usersA.keys()){
+            users.push({
+                address: address,
+                amount: Number(usersA.get(address))
+            })
+        }
 
 
-    let obj = {
-        user_share_map: usersA,
-        user_share: users,
-        normalize_exponent: NORMALIZE_CONSTANT,
-        sslpBalance: totalSupplyAtBlock,
-        date: Date.now()
+        let obj = {
+            user_share_map: usersA,
+            user_share: users,
+            normalize_exponent: NORMALIZE_CONSTANT,
+            sslpBalance: lastSslpBalance,
+            date: Date.now()
+        }
+
+        let doc = await buryLeashCollection.findOneAndUpdate({ block_number: blockResult, contract: "BuryLeash" }, obj, { new: true, upsert: true });
     }
-
-    let doc = await rewardsCollection.findOneAndUpdate({ block_number: blockResult, contract: "BuryLeash" }, obj, { new: true, upsert: true });
-
-}
 
     // console.log("Array now: ", users)
     }catch(err){
@@ -77,7 +109,7 @@ async function main() {
         contract: "BuryLeash"
     }
     let latestBlockNumber = 0;
-    let latestBlock = await rewardsCollection.find(params).limit(1).sort({$natural:-1}); // Fetching last block in DB for BuryLeash
+    let latestBlock = await buryLeashCollection.find(params).limit(1).sort({$natural:-1}); // Fetching last block in DB for BuryLeash
     if(latestBlock[0] == undefined){
         latestBlockNumber = config.contract.BuryLeashStartBlock;
     } else {
@@ -130,7 +162,7 @@ async function main() {
     let op=0;
     let po=0;
     let buggyBlocks = [];
-    for  (i=latestBlockNumber; i <= endBlock; i++){
+    for  (i=latestBlockNumber; i <= endBlock; i = i+skipBlockNumber){
         // console.log("BlockNumber: ", i);
             try{
                 await fetchAndStore(i);
@@ -143,9 +175,9 @@ async function main() {
 
     console.log("BuryLeash: New blocks added :", po, "from: ", latestBlockNumber, "-", endBlock);
 
-    let modelRes = await rewardsCollection.find(params);
+    // let modelRes = await buryLeashCollection.find(params);
 
-    console.log("Execution completed: DB now ", modelRes);
+    // console.log("Execution completed: DB now ", modelRes);
     console.log("Issue occured in blocks: ", buggyBlocks);
 
     }

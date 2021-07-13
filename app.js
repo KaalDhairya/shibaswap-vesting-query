@@ -16,7 +16,10 @@ mongoose.connect(DB, {
   else (err)
     return console.log("----------------> MongoDB Not Connected! <<---------------")
 });
-require('./scripts/rewardsCollection');
+require('./scripts/buryBoneCollection');
+require('./scripts/buryLeashCollection');
+require('./scripts/buryShibCollection');
+require('./scripts/topDogCollection');
 
 var logger = require('morgan');
 

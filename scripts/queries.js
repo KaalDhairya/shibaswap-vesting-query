@@ -37,4 +37,16 @@ module.exports = {
     async topDogPools(block_number) {
         return await shibaSwapData.topdog.pools({block: block_number})
     },
+    async topDogRewardPools(block_number, last_id, pool_id) {
+        return await shibaSwapData.topdog.rewardPool({block: block_number, last_id: last_id, pool_id: pool_id})
+    },
+    async buryShibRewardsUsers(block_number, last_id) {
+        return await shibaSwapData.buryshib.buryShibUserRewards({block: block_number, last_id: last_id});
+    },
+    async buryLeashRewardsUsers(block_number, last_id) {
+        return await shibaSwapData.buryleash.buryLeashUserRewards({block: block_number, last_id: last_id});
+    },
+    async buryBoneRewardsUsers(block_number,last_id) {
+        return await shibaSwapData.burybone.buryBoneUserRewards({block: block_number, last_id: last_id});
+    },
 }

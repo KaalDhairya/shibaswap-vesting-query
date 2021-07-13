@@ -4,19 +4,50 @@ const queries = require('./queries');
 const config = require('./config.json');
 const Web3 = require('web3');
 const mongoose = require('mongoose');
-const rewardsCollection = mongoose.model('rewardsCollection');
+const topDogCollection = mongoose.model('topDogCollection');
 
 let lastSslpBalance = undefined;
 let usersLength = 0;
+const POOL = 0;
 async function fetchAndStore(blockResult) {
     try{
 
+    let stillLeft = true;
+    let skipThisBlock = false;
+    let last_id = "";
     let usersA = new Map()
-    const POOL = 0;
+    let pool_id = POOL;
     const NORMALIZE_CONSTANT = 1000000000000;
     // const data = await queries.topDogPools(blockResult); //quering TopDog subgraph for this block
-    const data = await queries.topDogUsers(blockResult); //quering TopDog subgraph for this block
-    console.log("For: ",blockResult," queryRess: ", data.length);
+    // const data = await queries.topDogUsers(blockResult); //quering TopDog subgraph for this block
+    console.log("\n new block started: ", blockResult, "\n")
+    while(stillLeft){
+    const data = await queries.topDogRewardPools(blockResult, last_id, pool_id); //quering TopDog subgraph for this block
+    console.log(lastSslpBalance, data.balance," For: ",blockResult," .. ",usersLength, " userCount", data.userCount, "this.length of users: ", data.users.length, "lastID: ", last_id);
+
+    if(lastSslpBalance == data.balance && usersLength == data.userCount || data.userCount == 0){
+        console.log("skipped: ", blockResult)
+        skipThisBlock = true;
+        break;
+    }
+    if(data.users.length == 0){
+        stillLeft = false;
+        lastSslpBalance = data.balance;
+        usersLength = data.userCount;  
+        console.log("Reached end for this block: ", blockResult) 
+    }else{
+        console.log("For: ",blockResult, data.userCount, "length: ", data.users.length," queryRess: FROM ", data.users[0]," - ", data.users[data.users.length-1]);
+        for(j = 0;j < data.users.length; j++) {
+            const userAddress = data.users[j].address;
+            const totalSupplyAtBlock = data.balance == undefined ? 0 : data.balance;
+            const userRewardPercentage = totalSupplyAtBlock ? (data.users[j].amount * NORMALIZE_CONSTANT /totalSupplyAtBlock): 0;
+            console.log(userAddress, " userRewardPercentage: ", userRewardPercentage, j)
+            usersA.set(userAddress, userRewardPercentage)
+        }
+        last_id = data.users[data.users.length-1].id;
+    
+    }
+    }
     // console.log("users: ", data);
     //   console.log("blahblah: ", data.length)
     // for(i=0;i<data.length;i++){
@@ -40,24 +71,27 @@ async function fetchAndStore(blockResult) {
 
     // console.log("MAP Users: ", usersA)
 
-    // let users = []
-    // for(let address of usersA.keys()){
-    //     users.push({
-    //         address: address,
-    //         amount: Number(usersA.get(address))
-    //     })
-    // }
-
-
-    // let obj = {
-    //     user_share_map: usersA,
-    //     user_share: users,
-    //     normalize_exponent: NORMALIZE_CONSTANT,
-    //     date: Date.now()
-    // }
-
-    // let doc = await rewardsCollection.findOneAndUpdate({ block_number: blockResult, contract: "TopDog" }, obj, { new: true, upsert: true });
-
+    if(!skipThisBlock){
+        let users = []
+        for(let address of usersA.keys()){
+            users.push({
+                address: address,
+                amount: Number(usersA.get(address))
+            })
+        }
+    
+    
+        let obj = {
+            user_share_map: usersA,
+            user_share: users,
+            normalize_exponent: NORMALIZE_CONSTANT,
+            sslpBalance: lastSslpBalance,
+            date: Date.now()
+        }
+    
+        let doc = await topDogCollection.findOneAndUpdate({ block_number: blockResult, contract: "TopDog", poolId: POOL }, obj, { new: true, upsert: true });
+    }
+    
     // console.log("Array now: ", users)
     }catch(err){
         console.log(err, "Error in block: ", blockResult);
@@ -78,10 +112,11 @@ async function main() {
 
       
     const params = {
-        contract: "TopDog"
+        contract: "TopDog",
+        poolId: POOL
     }
     let latestBlockNumber = 0;
-    let latestBlock = await rewardsCollection.find(params).limit(1).sort({$natural:-1}); // Fetching last block in DB for TopDog
+    let latestBlock = await topDogCollection.find(params).limit(1).sort({$natural:-1}); // Fetching last block in DB for TopDog
     if(latestBlock[0] == undefined){
         latestBlockNumber = config.contract.TopDogStartBlock;
     } else {
@@ -134,22 +169,22 @@ async function main() {
     let op=0;
     let po=0;
     let buggyBlocks = [];
-    // for  (i=latestBlockNumber; i <= endBlock; i++){
-        // console.log("BlockNumber: ", uniqueBlocks[i]);
+    for  (i=latestBlockNumber; i <= endBlock; i++){
+        // console.log("BlockNumber: ", i);
             try{
-                await fetchAndStore(12815218);
+                await fetchAndStore(i);
                 ++po;
             }catch(err){
                 console.log(err, "Error in block: ", i);
                 buggyBlocks.push(i);
             }
-        // }
+        }
 
     console.log("TopDog: New blocks added :", po, "from: ", latestBlockNumber, "-", endBlock);
 
-    let modelRes = await rewardsCollection.find(params);
+    // let modelRes = await topDogCollection.find(params);
 
-    console.log("Execution completed: DB now ", modelRes);
+    // console.log("Execution completed: DB now ", modelRes);
     console.log("Issue occured in blocks: ", buggyBlocks);
 
     }
