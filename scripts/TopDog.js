@@ -18,8 +18,7 @@ async function fetchAndStore(blockResult) {
     let usersA = new Map()
     let pool_id = POOL;
     const NORMALIZE_CONSTANT = 1000000000000;
-    // const data = await queries.topDogPools(blockResult); //quering TopDog subgraph for this block
-    // const data = await queries.topDogUsers(blockResult); //quering TopDog subgraph for this block
+
     console.log("\n new block started: ", blockResult, "\n")
     while(stillLeft){
     const data = await queries.topDogRewardPools(blockResult, last_id, pool_id); //quering TopDog subgraph for this block
@@ -48,28 +47,6 @@ async function fetchAndStore(blockResult) {
     
     }
     }
-    // console.log("users: ", data);
-    //   console.log("blahblah: ", data.length)
-    // for(i=0;i<data.length;i++){
-    //     console.log("hhhblahblah: ", data[i].users.length);
-    //     for(j=0;j<data[i].users.length; j++){
-    //         // console.log("popop",data[i].users[j].amount)
-
-    //     }
-    // }
-
-    // for(j = 0;j < data.length; j++) {
-    //     if(data[j].pool.id == POOL)
-    //     {
-    //     const userAddress = data[j].address;
-    //     const totalSupplyAtBlock = data[j].pool == undefined ? 0 : data[j].pool.balance;
-    //     const userRewardPercentage = totalSupplyAtBlock ? (data[j].amount * NORMALIZE_CONSTANT /totalSupplyAtBlock): 0;
-    //     console.log(userAddress, " userRewardPercentage: ", userRewardPercentage, j)
-    //         usersA.set(userAddress, userRewardPercentage)
-    //     }
-    // }
-
-    // console.log("MAP Users: ", usersA)
 
     if(!skipThisBlock){
         let users = []
@@ -125,48 +102,11 @@ async function main() {
         usersLength = latestBlock[0].user_share.length;
     }
      
-
-    // const URL = `https://${config.etherscanUrl}/api?module=account&action=txlist&address=${config.contract.TopDog}&startblock=12808057&endblock=12808072&page=17&offset=5&sort=asc&apikey=H2EPP8FBXTDEDAAN93Z4975HU6FZYSFQY8`;
-    // let res = await axios.get(URL);
-    // let reachedLast = false;
-    // let page = 1;
-    // let offset = 10;
-    // let startBlock = 0;
     let endBlock = currentBlockNumber;
-    // let returnObj = [];
+
     lastestBlockNumber = latestBlockNumber;
     console.log("lastestBlockNumber: ", latestBlockNumber)
-    // while(!reachedLast){
-    //     const URL = `https://${config.etherscanUrl}/api?module=account&action=txlist&address=${config.contract.TopDog}&startblock=${startBlock}&endblock=${endBlock}&page=${page}&offset=${offset}&sort=asc&apikey=H2EPP8FBXTDEDAAN93Z4975HU6FZYSFQY8`;
-    //     let res = await axios.get(URL);
-    //     console.log("Page: ", page," * ", res.data.result.length, " per ", offset);
-    //     let blockArray = [];
-    //     for(let i=0; i<res.data.result.length; i++){
-    //         blockArray.push(res.data.result[i].blockNumber);
-    //     }
-    //     if(res.data.result.length<offset){
-    //         reachedLast = true;
-    //     } else {
-    //         page++;
-    //     }
-    //     returnObj = [...returnObj, ...blockArray];
-    // }
 
-    // let uniqueBlocks = [...new Set(returnObj)];
-    
-    // console.log("Resss: ", returnObj);
-    // console.log("Resss Length: ", returnObj.length);
-    // console.log("Unique blocks length: ", uniqueBlocks.length);
-
-    // let i;
-    // let skipFirstBlock = false;
-    // if(latestBlockNumber != 0){
-    //     i=0;
-    // } else {
-    //     i=1;
-    //     skipFirstBlock = true;  //contract blocks not saved till now, so ignoring first block  (the contract deployment block)
-    // }
-    let op=0;
     let po=0;
     let buggyBlocks = [];
     for  (i=latestBlockNumber; i <= endBlock; i++){
