@@ -12,10 +12,15 @@ function normalise(amount, output_decimal){
     return Math.floor(amount*output_decimal)
 }
 
-async function CalculateUserRewards(startBlock, endBlock, reward_amount, contract){
+async function CalculateUserRewards(startBlock, endBlock, reward_amount, contract, poolId){
     let userInfo = new Map()
     if(startBlock && endBlock){
-        const filter = {"block_number":{ $gte: startBlock, $lte: endBlock }, "contract": contract }
+        let filter = {}
+        if(poolId !== -1){
+            filter = {"block_number":{ $gte: startBlock, $lte: endBlock }, "contract": contract, "poolId": poolId }
+        }else{
+            filter= {"block_number":{ $gte: startBlock, $lte: endBlock }, "contract": contract }
+        }
         const rewardData = await fetchAll(WEEKLY_REWARD_INFO_COLLECTION, filter)
         // console.log("rewardData",rewardData)
         const rewardPerBlock = reward_amount/rewardData.length;
@@ -37,12 +42,12 @@ async function CalculateUserRewards(startBlock, endBlock, reward_amount, contrac
 
 export async function finalize(startBlock: number, endBlock: number,
     reward_amount: number, week: number, reward_week: number, reward_token: String, 
-    contract, pool, unloack_percent, lock_percent, input_decimal, output_decimal, claims
+    contract, poolId, unloack_percent, lock_percent, input_decimal, output_decimal, claims
     ) {
 
     // Calculate the user rewards per block for the week. This is 33% of the total reward user should get.
-    const usersA = await CalculateUserRewards(startBlock, endBlock, reward_amount, contract)
-    console.log(usersA)
+    const usersA = await CalculateUserRewards(startBlock, endBlock, reward_amount, contract, poolId)
+    // console.log(usersA)
 
     let users:any[] = []
     let totalR = 0
