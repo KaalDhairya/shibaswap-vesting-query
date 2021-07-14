@@ -15,7 +15,7 @@ async function fetchAndStore(blockResult) {
     let stillLeft = true;
     let skipThisBlock = false;
     let last_id = "";
-    let usersA = new Map()
+    let users = []
     const NORMALIZE_CONSTANT = 1000000000000;
     console.log("\n new block started: ", blockResult, "\n")
     while(stillLeft){
@@ -37,8 +37,11 @@ async function fetchAndStore(blockResult) {
             const userAddress = data.users[j].id;
             const totalSupplyAtBlock = data.totalSupply == undefined ? 0 : data.totalSupply;
             const userRewardPercentage = totalSupplyAtBlock ? (data.users[j].xLeash * NORMALIZE_CONSTANT /totalSupplyAtBlock): 0;
-            console.log(userAddress, " userRewardPercentage: ", userRewardPercentage, j)
-            usersA.set(userAddress, userRewardPercentage)
+            // console.log(userAddress, " userRewardPercentage: ", userRewardPercentage, j)
+            users.push({
+                address: userAddress,
+                amount: Number(userRewardPercentage)
+            })
         }
         last_id = data.users[data.users.length-1].id;
     
@@ -46,17 +49,8 @@ async function fetchAndStore(blockResult) {
     }
 
     if(!skipThisBlock){
-        let users = []
-        for(let address of usersA.keys()){
-            users.push({
-                address: address,
-                amount: Number(usersA.get(address))
-            })
-        }
-
-
+        
         let obj = {
-            user_share_map: usersA,
             user_share: users,
             normalize_exponent: NORMALIZE_CONSTANT,
             sslpBalance: lastSslpBalance,

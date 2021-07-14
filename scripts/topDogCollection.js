@@ -16,8 +16,7 @@ var topDogCollection = new mongoose.Schema({
         type: Number
     },
     user_share_map: {
-        type: Map,
-        required: 'This field is required.'
+        type: Map
     },
     user_share: {
         type: Object,

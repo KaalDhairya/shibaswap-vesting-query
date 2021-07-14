@@ -3,6 +3,7 @@ require('../scripts/BuryBone');
 require('../scripts/BuryLeash');
 require('../scripts/BuryShib');
 require('../scripts/TopDog');
+require('../scripts/checkMongoData')
 // var app = express();
 
 const router = express.Router();
