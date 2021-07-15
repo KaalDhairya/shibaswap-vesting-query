@@ -3,6 +3,7 @@ import { parseBalanceMap } from '../parse-balance-map'
 import queries from './queries';
 import { finalize } from '../rewardCalculation'
 import { Options } from '../types'
+import { TOPDOG_COLLECTION } from '../Database/constants';
 
 
 export default async function getDistribution(options: Options) {
@@ -42,7 +43,8 @@ export default async function getDistribution(options: Options) {
         LOCK_PERCENT,
         INPUT_DECIMAL,
         OUTPUT_DECIMAL,
-        claims
+        claims,
+        TOPDOG_COLLECTION
         );
 
     // console.log(final.users)
