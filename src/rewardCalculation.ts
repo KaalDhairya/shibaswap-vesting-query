@@ -110,7 +110,7 @@ export async function finalize(startBlock: number, endBlock: number,
         insert(user_obj, USER_INFO_COLLECTION)
         users.push(user_obj)
 
-        console.log("user: ", RewardOfWeek)
+        console.log("user address and reward of week: ", address, RewardOfWeek)
     }
 
     console.log("TotalR", totalR)
