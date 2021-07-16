@@ -20,7 +20,7 @@ export default async function getDistribution(options: Options) {
     const INPUT_DECIMAL = 1e18;
     const OUTPUT_DECIMAL = 1e18;
     const POOL = -1;
-    const REWARD_AMOUNT = 5000;   //33% of total rewards
+    const REWARD_AMOUNT = 231000;   //33% of total rewards
     const LOCK_PERCENT = 67;
     const UNLOCK_PERCENT = 33;
     const WEEK = 1;
