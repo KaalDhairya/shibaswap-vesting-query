@@ -22,9 +22,9 @@ async function CalculateUserRewards(startBlock, endBlock, reward_amount, contrac
             filter= {"block_number":{ $gte: startBlock, $lte: endBlock }, "contract": contract }
         }
         const rewardData = await fetchAll(rewardShareCollection, filter)
-        // console.log("rewardData",rewardData)
         const rewardPerBlock = reward_amount/rewardData.length;
         rewardData.forEach(blockInfo => {
+            console.log("block_number",blockInfo.block_number,rewardShareCollection)
             blockInfo.user_share.forEach(user => {
                 const userReward = (rewardPerBlock*user.amount)/blockInfo.normalize_exponent
                 if(userInfo.has(user.address)) {
@@ -51,6 +51,7 @@ export async function finalize(startBlock: number, endBlock: number,
 
     let users:any[] = []
     let totalR = 0
+    console.log("total users", usersA.size)
     for(var address of usersA.keys()){
         // Initialising values assuming first week
         const account = address.toLowerCase()
@@ -108,6 +109,8 @@ export async function finalize(startBlock: number, endBlock: number,
         }
         insert(user_obj, USER_INFO_COLLECTION)
         users.push(user_obj)
+
+        console.log("user: ", RewardOfWeek)
     }
 
     console.log("TotalR", totalR)
