@@ -13,28 +13,28 @@ export async function insert(record, collection){
     //     });
     //   });
     const db = await MongoClient.connect(URL);
-    var dbo = db.db(DB);
+    var dbo = await db.db(DB);
     await dbo.collection(collection).updateOne({week: record.week, account: record.account, rewardToken: record.rewardToken},{$set: record}, {upsert:true})
     // console.log(result);
-    db.close();
+    await db.close();
 
 }
 
 export async function fetchAll(collection, filter): Promise<any>{
   const db = await MongoClient.connect(URL);
-    var dbo = db.db(DB);
+    var dbo = await db.db(DB);
     const result = await dbo.collection(collection).find(filter).toArray()
     // console.log(result);
-    db.close();
+    await db.close();
     return result;
 }
 
 export async function fetchOne(collection, filter): Promise<any>{
     const db = await MongoClient.connect(URL);
-    var dbo = db.db(DB);
+    var dbo = await db.db(DB);
     const result = await dbo.collection(collection).findOne(filter)
     // console.log("inserted",result);
-    db.close();
+    await db.close();
     return result;
 
     // MongoClient.connect(URL, function(err, db) {
