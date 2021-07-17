@@ -3,6 +3,7 @@ require('../scripts/BuryBone');
 require('../scripts/BuryLeash');
 require('../scripts/BuryShib');
 require('../scripts/TopDog');
+require('../scripts/breakMerkle')
 require('../scripts/checkMongoData')
 require('../scripts/checkRewardDistribution')
 // var app = express();
