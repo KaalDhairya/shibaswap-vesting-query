@@ -2,16 +2,22 @@ import { DB, URL } from "./constants"
 var MongoClient = require('mongodb').MongoClient;
 
 
-export function insert(record, collection){
-    MongoClient.connect(URL, function(err, db) {
-        if (err) throw err;
-        var dbo = db.db(DB);
-        dbo.collection(collection).updateOne({week: record.week, account: record.account, rewardToken: record.rewardToken},{$set: record}, {upsert:true}, function(err, res) {
-          if (err) throw err;
-          // console.log("1 document inserted");
-          db.close();
-        });
-      });
+export async function insert(record, collection){
+    // MongoClient.connect(URL, function(err, db) {
+    //     if (err) throw err;
+    //     var dbo = db.db(DB);
+    //     dbo.collection(collection).updateOne({week: record.week, account: record.account, rewardToken: record.rewardToken},{$set: record}, {upsert:true}, function(err, res) {
+    //       if (err) throw err;
+    //       // console.log("1 document inserted");
+    //       db.close();
+    //     });
+    //   });
+    const db = await MongoClient.connect(URL);
+    var dbo = db.db(DB);
+    await dbo.collection(collection).updateOne({week: record.week, account: record.account, rewardToken: record.rewardToken},{$set: record}, {upsert:true})
+    // console.log(result);
+    db.close();
+
 }
 
 export async function fetchAll(collection, filter): Promise<any>{

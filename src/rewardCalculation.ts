@@ -107,7 +107,8 @@ export async function finalize(startBlock: number, endBlock: number,
             ClaimableThisWeek :  ClaimableThisWeek,
             TotalClaimable :  TotalClaimable
         }
-        insert(user_obj, USER_INFO_COLLECTION)
+        console.log(user_obj)
+        await insert(user_obj, USER_INFO_COLLECTION)
         users.push(user_obj)
 
         // console.log("user address and reward of week: ", address, RewardOfWeek)
@@ -146,7 +147,7 @@ export async function finalize(startBlock: number, endBlock: number,
                     TotalClaimable : TotalClaimable
                 }
                 users.push(user_obj)
-                insert(user_obj, USER_INFO_COLLECTION)
+                await insert(user_obj, USER_INFO_COLLECTION)
             }
         });
     }
@@ -185,7 +186,7 @@ function filterUsers(users, claims){
         
         lockInfo: users
             .filter(user => user.ClaimableThisWeek >= 1e-18)
-            .filter(user => !blacklist.includes(user.address))
+            .filter(user => !blacklist.includes(user.account))
             .map(user => {
                 return ({
                     address: user.account,
