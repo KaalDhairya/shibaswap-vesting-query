@@ -4,9 +4,10 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 // var verifyRequest = require('./routes/auth');
-
+const MongoClient = require("mongodb").MongoClient;
 var mongoose = require('mongoose');
 var DB = 'mongodb://localhost:27017/vesting';
+// var DB = 'mongodb+srv://shib:qXUaCrG3aI5Xfq0f@shibaswap.xslju.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
 mongoose.connect(DB, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -14,8 +15,24 @@ mongoose.connect(DB, {
   if (res)
     return console.log("----------------->> MongoDB Connected! <<-----------------")
   else (err)
+  console.log(err);
     return console.log("----------------> MongoDB Not Connected! <<---------------")
 });
+
+
+// MongoClient.connect(DB, {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true
+//    }, (error, client) => {
+//   if(error) {
+//       console.log("Error in connecting mongodb: ", error);
+//       throw error;
+//   }
+//   database = client.db('myFirstDatabase');
+//   console.log("Connected to !");
+// });
+
+
 require('./scripts/buryBoneCollection');
 require('./scripts/buryLeashCollection');
 require('./scripts/buryShibCollection');
