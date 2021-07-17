@@ -9,6 +9,7 @@ const topDogCollection = mongoose.model('topDogCollection');
 let lastSslpBalance = undefined;
 let usersLength = 0;
 const POOL = 0;
+const skipBlockNumber = 60;
 async function fetchAndStore(blockResult) {
     try{
 
@@ -103,7 +104,7 @@ async function main() {
 
     let po=0;
     let buggyBlocks = [];
-    for  (i=latestBlockNumber; i <= endBlock; i++){
+    for  (i=latestBlockNumber; i <= endBlock; i = i+skipBlockNumber){
         // console.log("BlockNumber: ", i);
             try{
                 await fetchAndStore(i);

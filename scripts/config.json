@@ -17,6 +17,8 @@
         "BuryLeashFlag": false,
         "BuryShibFlag": false,
 
+        "checkRewardDistribution_BuryShib": true,
+
         "BuryBoneStartBlock": 12771565,
         
         "BuryLeashStartBlock": 12771565,
