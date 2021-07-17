@@ -55,4 +55,11 @@ async function main() {
             distribution.merkle, null, 1
         )
     )
+
+    fs.writeFileSync(
+        `./outputs/BuryBoneBone/lockInfo-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
+        JSON.stringify(
+            distribution.lockInfo, null, 1
+        )
+    )
 };
