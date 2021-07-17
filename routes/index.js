@@ -4,6 +4,7 @@ require('../scripts/BuryLeash');
 require('../scripts/BuryShib');
 require('../scripts/TopDog');
 require('../scripts/checkMongoData')
+require('../scripts/checkRewardDistribution')
 // var app = express();
 
 const router = express.Router();
