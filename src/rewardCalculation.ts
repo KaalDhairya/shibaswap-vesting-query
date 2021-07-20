@@ -24,6 +24,7 @@ async function CalculateUserRewards(startBlock, endBlock, reward_amount, contrac
         const block_numbers = await fetchAll(rewardShareCollection, filter, {block_number: 1, _id: 0})
         const rewardPerBlock = reward_amount/block_numbers.length;
         for(const blockNum of block_numbers) {
+            console.log("running for block: ", blockNum.block_number)
             let filter1 = {}
             if(poolId !== -1){
                 filter1 = {block_number: blockNum.block_number, poolId: poolId }
@@ -40,18 +41,6 @@ async function CalculateUserRewards(startBlock, endBlock, reward_amount, contrac
                 }
             });
         }
-        
-        // rewardData.forEach(blockInfo => {
-        //     console.log("block_number",blockInfo.block_number,rewardShareCollection)
-        //     blockInfo.user_share.forEach(user => {
-        //         const userReward = (rewardPerBlock*user.amount)/blockInfo.normalize_exponent
-        //         if(userInfo.has(user.address)) {
-        //             userInfo.set(user.address, userInfo.get(user.address) + userReward)
-        //         } else {
-        //             userInfo.set(user.address, userReward)
-        //         }
-        //     });
-        // });
     }
     return userInfo
 }
@@ -65,7 +54,7 @@ export async function finalize(startBlock: number, endBlock: number,
 
     // Calculate the user rewards per block for the week. This is 33% of the total reward user should get.
     const usersA = await CalculateUserRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection)
-    console.log(usersA)
+    // console.log(usersA)
 
     let users:any[] = []
     let totalR = 0
@@ -125,7 +114,7 @@ export async function finalize(startBlock: number, endBlock: number,
             ClaimableThisWeek :  ClaimableThisWeek,
             TotalClaimable :  TotalClaimable
         }
-        // console.log(user_obj)
+        console.log(user_obj)
         await insert(user_obj, USER_INFO_COLLECTION)
         users.push(user_obj)
 
@@ -136,9 +125,10 @@ export async function finalize(startBlock: number, endBlock: number,
 
     // Users who didn't participated in the current week but have claimable or locked amount
     if(week > 1){
+        console.log("Checking previous week users")
         const prev_week_users = await fetchAll(USER_INFO_COLLECTION, {"week": week - 1, "rewardToken": reward_token})
         const uncommon_users = prev_week_users.filter(u => !users.some(u2 => u.account == u2.account))
-        await uncommon_users.forEach(async prev_week_user => {
+        for(const prev_week_user of uncommon_users) {
             const TotalClaimedTill =  claims.find(u => prev_week_user.account === u.id)?.totalClaimed ?? 0
             const claimedPrevWeek = normalise(TotalClaimedTill, output_decimal) - prev_week_user.TotalClaimedTill
             const filter1= {"week": reward_week, "account": address, "rewardToken": reward_week}
@@ -168,13 +158,14 @@ export async function finalize(startBlock: number, endBlock: number,
                 users.push(user_obj)
                 await insert(user_obj, USER_INFO_COLLECTION)
             }
-        });
+        }
     }
 
     return filterUsers(users, claims)
 }
 
 function filterUsers(users, claims){
+    console.log("Preparing for file generation")
     const blacklist = Blacklist.map((a:String)=>a.toLowerCase())
     return {
         users: users

@@ -31,6 +31,8 @@ async function main() {
 
     const distribution = await getDistribution(options);
 
+    console.log("Generating files")
+
     if(!fs.existsSync('./outputs/USDT')) {
         fs.mkdirSync('./outputs/USDT', { recursive: true})
     }
