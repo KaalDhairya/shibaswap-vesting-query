@@ -20,10 +20,10 @@ export async function insert(record, collection){
 
 }
 
-export async function fetchAll(collection, filter): Promise<any>{
+export async function fetchAll(collection, filter, select={}): Promise<any>{
   const db = await MongoClient.connect(URL);
     var dbo = await db.db(DB);
-    const result = await dbo.collection(collection).find(filter).toArray()
+    const result = await dbo.collection(collection).find(filter, { projection : select }).toArray()
     // console.log(result);
     await db.close();
     return result;
@@ -33,11 +33,11 @@ export async function fetchOne(collection, filter): Promise<any>{
     const db = await MongoClient.connect(URL);
     var dbo = await db.db(DB);
     const result = await dbo.collection(collection).findOne(filter)
-    // console.log("inserted",result);
     await db.close();
     return result;
+}
 
-    // MongoClient.connect(URL, function(err, db) {
+// MongoClient.connect(URL, function(err, db) {
     //     if (err) throw err;
     //     var dbo = db.db(DB);
     //     console.log(filter)
@@ -49,4 +49,3 @@ export async function fetchOne(collection, filter): Promise<any>{
     //       return result;
     //     });
     //   });
-}

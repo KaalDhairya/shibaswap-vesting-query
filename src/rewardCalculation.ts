@@ -17,14 +17,20 @@ async function CalculateUserRewards(startBlock, endBlock, reward_amount, contrac
     if(startBlock && endBlock){
         let filter = {}
         if(poolId !== -1){
-            filter = {"block_number":{ $gte: startBlock, $lte: endBlock }, "contract": contract, "poolId": poolId }
+            filter = {"block_number":{ $gte: startBlock, $lte: endBlock }, "poolId": poolId }
         }else{
-            filter= {"block_number":{ $gte: startBlock, $lte: endBlock }, "contract": contract }
+            filter= {"block_number":{ $gte: startBlock, $lte: endBlock } }
         }
-        const rewardData = await fetchAll(rewardShareCollection, filter)
-        const rewardPerBlock = reward_amount/rewardData.length;
-        rewardData.forEach(blockInfo => {
-            console.log("block_number",blockInfo.block_number,rewardShareCollection)
+        const block_numbers = await fetchAll(rewardShareCollection, filter, {block_number: 1, _id: 0})
+        const rewardPerBlock = reward_amount/block_numbers.length;
+        for(const blockNum of block_numbers) {
+            let filter1 = {}
+            if(poolId !== -1){
+                filter1 = {block_number: blockNum.block_number, poolId: poolId }
+            }else{
+                filter1= { block_number: blockNum.block_number }
+            }
+            const blockInfo = await fetchOne(rewardShareCollection, filter1)
             blockInfo.user_share.forEach(user => {
                 const userReward = (rewardPerBlock*user.amount)/blockInfo.normalize_exponent
                 if(userInfo.has(user.address)) {
@@ -33,7 +39,19 @@ async function CalculateUserRewards(startBlock, endBlock, reward_amount, contrac
                     userInfo.set(user.address, userReward)
                 }
             });
-        });
+        }
+        
+        // rewardData.forEach(blockInfo => {
+        //     console.log("block_number",blockInfo.block_number,rewardShareCollection)
+        //     blockInfo.user_share.forEach(user => {
+        //         const userReward = (rewardPerBlock*user.amount)/blockInfo.normalize_exponent
+        //         if(userInfo.has(user.address)) {
+        //             userInfo.set(user.address, userInfo.get(user.address) + userReward)
+        //         } else {
+        //             userInfo.set(user.address, userReward)
+        //         }
+        //     });
+        // });
     }
     return userInfo
 }
@@ -47,7 +65,7 @@ export async function finalize(startBlock: number, endBlock: number,
 
     // Calculate the user rewards per block for the week. This is 33% of the total reward user should get.
     const usersA = await CalculateUserRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection)
-    // console.log(usersA)
+    console.log(usersA)
 
     let users:any[] = []
     let totalR = 0
@@ -107,7 +125,7 @@ export async function finalize(startBlock: number, endBlock: number,
             ClaimableThisWeek :  ClaimableThisWeek,
             TotalClaimable :  TotalClaimable
         }
-        console.log(user_obj)
+        // console.log(user_obj)
         await insert(user_obj, USER_INFO_COLLECTION)
         users.push(user_obj)
 
@@ -164,7 +182,7 @@ function filterUsers(users, claims){
             .map(user => {
                 return ({
                     address: user.account,
-                    vested: BigInt(Math.floor((user.ClaimableThisWeek)))
+                    vested: BigInt(Math.floor((user.ClaimableThisWeek/1e18)))
                 })
             })
             .filter(user => user.vested > BigInt(0))
