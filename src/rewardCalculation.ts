@@ -164,6 +164,7 @@ export async function finalize(startBlock: number, endBlock: number,
                     ClaimableThisWeek :  ClaimableThisWeek,
                     TotalClaimable : TotalClaimable
                 }
+                console.log(user_obj)
                 users.push(user_obj)
                 await insert(user_obj, USER_INFO_COLLECTION)
             }
