@@ -174,7 +174,7 @@ function filterUsers(users, claims){
             .map(user => {
                 return ({
                     address: user.account,
-                    vested: BigInt(Math.floor((user.ClaimableThisWeek/1e18)))
+                    vested: BigInt(Math.floor((user.ClaimableThisWeek)))
                 })
             })
             .filter(user => user.vested > BigInt(0))
