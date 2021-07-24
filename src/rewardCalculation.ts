@@ -17,6 +17,32 @@ async function CalculateUserRewards(startBlock, endBlock, reward_amount, contrac
     if(startBlock && endBlock){
         let filter = {}
         if(poolId !== -1){
+            filter = {"block_number":{ $gte: startBlock, $lte: endBlock }, "contract": contract, "poolId": poolId }
+        }else{
+            filter= {"block_number":{ $gte: startBlock, $lte: endBlock }, "contract": contract }
+        }
+        const rewardData = await fetchAll(rewardShareCollection, filter)
+        const rewardPerBlock = reward_amount/rewardData.length;
+        rewardData.forEach(blockInfo => {
+            console.log("block_number",blockInfo.block_number,rewardShareCollection)
+            blockInfo.user_share.forEach(user => {
+                const userReward = (rewardPerBlock*user.amount)/blockInfo.normalize_exponent
+                if(userInfo.has(user.address)) {
+                    userInfo.set(user.address, userInfo.get(user.address) + userReward)
+                } else {
+                    userInfo.set(user.address, userReward)
+                }
+            });
+        });
+    }
+    return userInfo
+}
+
+async function CalculateUserRewardsBlockByBlock(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection){
+    let userInfo = new Map()
+    if(startBlock && endBlock){
+        let filter = {}
+        if(poolId !== -1){
             filter = {"block_number":{ $gte: startBlock, $lte: endBlock }, "poolId": poolId }
         }else{
             filter= {"block_number":{ $gte: startBlock, $lte: endBlock } }
