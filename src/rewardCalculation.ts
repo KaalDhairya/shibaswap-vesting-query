@@ -129,26 +129,28 @@ export async function finalize(startBlock: number, endBlock: number,
         }
 
         // Create user object to store for this week
-        const user_obj = {
-            account : account,
-            week : week,
-            week_date: week_date,
-            LockedThisWeek : LockedThisWeek,
-            LockReleaseDate :  LockReleaseDate,
-            RewardOfWeek :  RewardOfWeek,
-            rewardToken :  reward_token,
-            TotalLocked : TotalLocked,
-            TotalVested :  TotalVested,
-            VestedThisWeek :  VestedThisWeek,
-            TotalClaimedTill :  TotalClaimedTill,
-            ClaimedPrevWeek :  ClaimedPrevWeek,
-            ClaimableThisWeek :  ClaimableThisWeek,
-            TotalClaimable :  TotalClaimable,
-            NextFirstLock: NextFirstLock
+        if(TotalLocked!=0 && ClaimableThisWeek!=0){
+            const user_obj = {
+                account : account,
+                week : week,
+                week_date: week_date,
+                LockedThisWeek : LockedThisWeek,
+                LockReleaseDate :  LockReleaseDate,
+                RewardOfWeek :  RewardOfWeek,
+                rewardToken :  reward_token,
+                TotalLocked : TotalLocked,
+                TotalVested :  TotalVested,
+                VestedThisWeek :  VestedThisWeek,
+                TotalClaimedTill :  TotalClaimedTill,
+                ClaimedPrevWeek :  ClaimedPrevWeek,
+                ClaimableThisWeek :  ClaimableThisWeek,
+                TotalClaimable :  TotalClaimable,
+                NextFirstLock: NextFirstLock
+            }
+            console.log(user_obj)
+            await insert(user_obj, USER_INFO_COLLECTION)
+            users.push(user_obj)
         }
-        console.log(user_obj)
-        await insert(user_obj, USER_INFO_COLLECTION)
-        users.push(user_obj)
 
         // console.log("user address and reward of week: ", address, RewardOfWeek)
     }
@@ -160,6 +162,7 @@ export async function finalize(startBlock: number, endBlock: number,
         console.log("Checking previous week users")
         const prev_week_users = await fetchAll(USER_INFO_COLLECTION, {"week": week - 1, "rewardToken": reward_token})
         const uncommon_users = prev_week_users.filter(u => !users.some(u2 => u.account == u2.account))
+        // console.log("uncommon users: ", uncommon_users.length)
         for(const prev_week_user of uncommon_users) {
             const account = prev_week_user.account
             let TotalClaimedTill =  claims.find(u => prev_week_user.account === u.id)?.totalClaimed ?? 0
@@ -174,7 +177,7 @@ export async function finalize(startBlock: number, endBlock: number,
             const filter2 = { $query: { "week": { $gt: reward_week }, "LockReleaseDate": { $gt: 0 }, "account": account }, $orderby: { week: 1 } }
             const firstLockDate = await fetchOne(USER_INFO_COLLECTION, filter2)
             const NextFirstLock = firstLockDate?.LockReleaseDate ?? 0
-            if(prev_week_user.TotalLocked != 0 &&  TotalClaimable != 0){
+            if(prev_week_user.TotalLocked != 0 &&  ClaimableThisWeek != 0){
                 const user_obj = {
                     account : prev_week_user.account,
                     week : week,
@@ -207,7 +210,7 @@ function filterUsers(users, claims){
     const blacklist = Blacklist.map((a:String)=>a.toLowerCase())
     return {
         users: users
-            .filter(user => user.ClaimableThisWeek >= 1e-18)
+            // .filter(user => user.ClaimableThisWeek >= 1e-18)
             .filter(user => !blacklist.includes(user.account))
             .map(user => {
                 return ({
@@ -215,12 +218,12 @@ function filterUsers(users, claims){
                     vested: BigInt(Math.floor((user.ClaimableThisWeek)))
                 })
             })
-            .filter(user => user.vested > BigInt(0))
+            // .filter(user => user.vested > BigInt(0))
             .map(user => ({[user.address]: String(user.vested)}))
             .reduce((a, b) => ({...a, ...b}), {}),
 
         blacklisted: users
-            .filter(user => user.ClaimableThisWeek >= 1e-18)
+            // .filter(user => user.ClaimableThisWeek >= 1e-18)
             .filter(user => blacklist.includes(user.account))
             .map(user => {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
                 return ({
@@ -228,12 +231,12 @@ function filterUsers(users, claims){
                     vested: BigInt(Math.floor((user.ClaimableThisWeek)))
                 })
             })
-            .filter(user => user.vested > BigInt(0))
+            // .filter(user => user.vested > BigInt(0))
             .map(user => ({[user.address]: String(user.vested)}))
             .reduce((a, b) => ({...a, ...b}), {}),
         
         lockInfo: users
-            .filter(user => user.ClaimableThisWeek >= 1e-18)
+            // .filter(user => user.ClaimableThisWeek >= 1e-18)
             .filter(user => !blacklist.includes(user.account))
             .map(user => {
                 return ({
@@ -243,7 +246,7 @@ function filterUsers(users, claims){
                     totalClaimed: user.TotalClaimedTill
                 })
             })
-            .filter(user => user.locked > BigInt(0))
+            // .filter(user => user.locked > BigInt(0))
             .map(user => ({[user.address]: {address: user.address, locked: String(user.locked), nextLockDate: user.nextLockDate, totalClaimed: user.totalClaimed}}))
             .reduce((a, b) => ({...a, ...b}), {})
     }
