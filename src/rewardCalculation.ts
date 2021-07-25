@@ -295,7 +295,7 @@ export async function finalize1(startBlock: number, endBlock: number,
     for(const user of UserList){
         const address = user.toLowerCase()
         const RewardOfWeek =  normalise(usersA.get(address), output_decimal)
-        TotalRedistribute= TotalRedistribute + RewardOfWeek
+        TotalRedistribute= TotalRedistribute + (RewardOfWeek??0)
         usersA.delete(address)
     }
     console.log("totalToRedistribute", TotalRedistribute)
