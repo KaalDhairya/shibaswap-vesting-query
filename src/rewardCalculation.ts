@@ -28,10 +28,10 @@ async function CalculateUserRewards(startBlock, endBlock, reward_amount, contrac
             console.log("block_number",blockInfo.block_number,rewardShareCollection)
             blockInfo.user_share.forEach(user => {
                 const userReward = (rewardPerBlock*user.amount)/blockInfo.normalize_exponent
-                if(userInfo.has(user.address)) {
-                    userInfo.set(user.address, userInfo.get(user.address) + userReward)
+                if(userInfo.has(user.address.toLowerCase())) {
+                    userInfo.set(user.address.toLowerCase(), userInfo.get(user.address.toLowerCase()) + userReward)
                 } else {
-                    userInfo.set(user.address, userReward)
+                    userInfo.set(user.address.toLowerCase(), userReward)
                 }
             });
         });
@@ -295,7 +295,7 @@ export async function finalize1(startBlock: number, endBlock: number,
     for(const user of UserList){
         const address = user.toLowerCase()
         const RewardOfWeek =  normalise(usersA.get(address), output_decimal)
-        TotalRedistribute+=RewardOfWeek
+        TotalRedistribute= TotalRedistribute + RewardOfWeek
         usersA.delete(address)
     }
     console.log("totalToRedistribute", TotalRedistribute)
@@ -308,7 +308,7 @@ export async function finalize1(startBlock: number, endBlock: number,
         // Initialising values assuming first week
         const account = address.toLowerCase()
         const week_date = (new Date()).getTime()
-        const RewardOfWeek =  normalise(usersA.get(address), output_decimal) + redistributePerUser   // 33% reward available to claim right away
+        const RewardOfWeek =  normalise(usersA.get(account), output_decimal) + redistributePerUser   // 33% reward available to claim right away
         const LockedThisWeek =  Math.floor(RewardOfWeek * lock_percent / unloack_percent)      // Calculate the rest of 67% of the reward
         const LockReleaseDate =  (new Date()).getTime() + LOCK_PERIOD // Lock release date for the locked reward of the week i.e. after 6 months
         let TotalLocked = LockedThisWeek    // Total locked till now
