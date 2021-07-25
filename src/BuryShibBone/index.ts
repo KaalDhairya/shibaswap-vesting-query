@@ -1,7 +1,7 @@
 import shibaSwapData from '@shibaswap/shibaswap-data-snoop';
 import { parseBalanceMap } from '../parse-balance-map'
 import queries from './queries';
-import { finalize, calculateTotal } from '../rewardCalculation'
+import { finalize, calculateTotal, finalize1 } from '../rewardCalculation'
 import { Options } from '../types'
 import { BURRY_SHIB_COLLECTION } from '../Database/constants';
 
@@ -28,42 +28,36 @@ export default async function getDistribution(options: Options) {
     const REWARD_TOKEN = "SHIB_BONE"
     const CONTRACT = "BuryShib"
 
-    const total = await calculateTotal()
+    // const total = await calculateTotal()
 
-    console.log("Total Loss gain: ", total)
+    // console.log("Total Loss gain: ", total)
 
 
-    // const claims = await queries.claims(options.claimBlock);
-    // const final = await finalize(
-    //     options.startBlock, 
-    //     options.endBlock,
-    //     REWARD_AMOUNT,
-    //     WEEK,
-    //     REWARD_WEEK,
-    //     REWARD_TOKEN,
-    //     CONTRACT,
-    //     POOL,
-    //     UNLOCK_PERCENT,
-    //     LOCK_PERCENT,
-    //     INPUT_DECIMAL,
-    //     OUTPUT_DECIMAL,
-    //     claims,
-    //     BURRY_SHIB_COLLECTION
-    //     );
+    const claims = await queries.claims(options.claimBlock);
+    const final = await finalize1(
+        options.startBlock, 
+        options.endBlock,
+        REWARD_AMOUNT,
+        WEEK,
+        REWARD_WEEK,
+        REWARD_TOKEN,
+        CONTRACT,
+        POOL,
+        UNLOCK_PERCENT,
+        LOCK_PERCENT,
+        INPUT_DECIMAL,
+        OUTPUT_DECIMAL,
+        claims,
+        BURRY_SHIB_COLLECTION
+        );
 
-    // // console.log(final.users)
-
-    // return {
-    //     amounts: final.users,
-    //     blacklisted: final.blacklisted,
-    //     merkle: parseBalanceMap(final.users),
-    //     lockInfo: final.lockInfo
-    // };
+    // console.log(final.users)
 
     return {
-        amounts: {},
-        blacklisted: {},
-        merkle: {},
-        lockInfo: {}
+        amounts: final.users,
+        blacklisted: final.blacklisted,
+        merkle: parseBalanceMap(final.users),
+        lockInfo: final.lockInfo
     };
+
 }
