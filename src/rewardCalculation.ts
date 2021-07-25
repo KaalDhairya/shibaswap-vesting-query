@@ -78,6 +78,15 @@ export async function finalize(startBlock: number, endBlock: number,
     contract, poolId, unloack_percent, lock_percent, input_decimal, output_decimal, claims, rewardShareCollection
     ) {
 
+    if(!claims || typeof claims === 'undefined' || claims.length === 0){
+        console.error("No claims recieved")
+        return {
+            users: {},
+            blacklisted: {},
+            lockInfo: {}
+        }
+    }
+
     // Calculate the user rewards per block for the week. This is 33% of the total reward user should get.
     const usersA = await CalculateUserRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection)
     // console.log(usersA)
