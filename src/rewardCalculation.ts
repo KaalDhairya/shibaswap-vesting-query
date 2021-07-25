@@ -266,9 +266,9 @@ function filterUsers(users, claims){
 export async function calculateTotal(){
     let TotalLossGain = 0
     for(const user of UserList){
-        const query = {"week": 1, "rewardToken": "SHIB_BONE", account: user.toLowerCase()}
+        const query = {"week": 2, "rewardToken": "SHIB_BONE", account: user.toLowerCase()}
         const data = await fetchOne(USER_INFO_COLLECTION, query)
-        console.log("user", user.toLowerCase(), "claimable", data?.ClaimableThisWeek)
+        console.log("user", user.toLowerCase(), "claimable", (data?.ClaimableThisWeek??0)/1e18)
         TotalLossGain= TotalLossGain  + ((data?.ClaimableThisWeek??0)/1e18)
     }
     return TotalLossGain
