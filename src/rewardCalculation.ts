@@ -2,7 +2,8 @@ import { fetchAll, fetchOne, insert } from './Database/utils'
 import { USER_INFO_COLLECTION, WEEKLY_REWARD_INFO_COLLECTION } from './Database/constants';
 import { LOCK_PERIOD, VESTING_POOL_ID } from "./constants";
 import Blacklist from './blacklist.json';
-import queries from './genericQueries'
+import queries from './genericQueries';
+import UserList from './userList.json';
 
 import {Promise} from "bluebird"
 
@@ -177,13 +178,13 @@ export async function finalize(startBlock: number, endBlock: number,
             let TotalClaimedTill =  claims.find(u => prev_week_user.account === u.id)?.totalClaimed ?? 0
             TotalClaimedTill = normalise(TotalClaimedTill, 1e18)
             const claimedPrevWeek = TotalClaimedTill - prev_week_user.TotalClaimedTill
-            const filter1= {"week": reward_week, "account": account, "rewardToken": reward_week}
+            const filter1= {"week": reward_week, "account": account, "rewardToken": reward_token}
             const rewardWeekInfo  = await fetchOne(USER_INFO_COLLECTION, filter1)
             const VestedThisWeek = rewardWeekInfo?.LockedThisWeek  ?? 0                                    // Find the lock released for the week
             const TotalVested = prev_week_user.TotalVested  +  VestedThisWeek              // Total vested till now
             const TotalClaimable = prev_week_user.TotalClaimable + VestedThisWeek      // Total Claimable till now (every week's 33% + all vested reward)
             const ClaimableThisWeek = TotalClaimable  - normalise(TotalClaimedTill, output_decimal)              // Claimable of this week
-            const filter2 = { $query: { "week": { $gt: reward_week }, "LockReleaseDate": { $gt: 0 }, "account": account }, $orderby: { week: 1 } }
+            const filter2 = { $query: { "week": { $gt: reward_week }, "LockReleaseDate": { $gt: 0 }, "account": account, "rewardToken": reward_token }, $orderby: { week: 1 } }
             const firstLockDate = await fetchOne(USER_INFO_COLLECTION, filter2)
             const NextFirstLock = firstLockDate?.LockReleaseDate ?? 0
             if(prev_week_user.TotalLocked != 0 &&  ClaimableThisWeek != 0){
@@ -260,6 +261,164 @@ function filterUsers(users, claims){
             .reduce((a, b) => ({...a, ...b}), {})
     }
 }
+
+
+export async function calculateTotal(){
+    let TotalLossGain = 0
+    for(const user of UserList){
+        const query = {"week": 1, "rewardToken": "SHIB_BONE", account: user.toLowerCase()}
+        const data = await fetchOne(USER_INFO_COLLECTION, query)
+        console.log("user", user.toLowerCase(), "claimable", data?.ClaimableThisWeek)
+        TotalLossGain= TotalLossGain  + ((data?.ClaimableThisWeek??0)/1e18)
+    }
+    return TotalLossGain
+}
+
+
+export async function finalize1(startBlock: number, endBlock: number,
+    reward_amount: number, week: number, reward_week: number, reward_token: String, 
+    contract, poolId, unloack_percent, lock_percent, input_decimal, output_decimal, claims, rewardShareCollection
+    ) {
+
+    if(!claims || typeof claims === 'undefined' || claims.length === 0){
+        console.error("No claims recieved")
+        return {
+            users: {},
+            blacklisted: {},
+            lockInfo: {}
+        }
+    }
+
+    // Calculate the user rewards per block for the week. This is 33% of the total reward user should get.
+    const usersA = await CalculateUserRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection)
+    // console.log(usersA)
+
+    let users:any[] = []
+    let totalR = 0
+    console.log("total users", usersA.size)
+    for(var address of usersA.keys()){
+        // Initialising values assuming first week
+        const account = address.toLowerCase()
+        const week_date = (new Date()).getTime()
+        const RewardOfWeek =  normalise(usersA.get(address), output_decimal)   // 33% reward available to claim right away
+        const LockedThisWeek =  Math.floor(RewardOfWeek * lock_percent / unloack_percent)      // Calculate the rest of 67% of the reward
+        const LockReleaseDate =  (new Date()).getTime() + LOCK_PERIOD // Lock release date for the locked reward of the week i.e. after 6 months
+        let TotalLocked = LockedThisWeek    // Total locked till now
+        let TotalVested =  0                // Total vested till now i.e. Released amount till now. 0 for the 1st week
+        let VestedThisWeek =  0             // Released amount this week. 0 for the 1st week
+        let TotalClaimedTill =  0              // Total claimed till now. 0 for the 1st week
+        let ClaimedPrevWeek =  0                // Claimed amount previous week. 0 for the 1st week
+        let ClaimableThisWeek =  RewardOfWeek   // Total claimable amount this week. ronly 33% of the week for 1st week.
+        let TotalClaimable =  ClaimableThisWeek         // Cumulative claimable including what is withdrawn by user. Only for analysis
+        let NextFirstLock = LockReleaseDate
+
+        totalR+=RewardOfWeek
+
+        const PREV_WEEK  = week - 1
+        const filter = { "week": PREV_WEEK, "account": account, "rewardToken": reward_token }
+        const lastWeekInfo = await fetchOne(USER_INFO_COLLECTION, filter)
+        if(lastWeekInfo && lastWeekInfo!==null){
+            TotalLocked = lastWeekInfo.TotalLocked + LockedThisWeek   //Total locked amount of the user
+            //NEED TO CHECK IF ADDRESS LOWECASE
+            TotalClaimedTill = claims.find(u => address === u.id)?.totalClaimed ?? 0              // Total claimed till ow of the user
+            TotalClaimedTill = normalise(TotalClaimedTill, 1e18)                              /// normalising with 1e18 because of subgraph issue which outputs vesting amount*1etokendec/1e18
+            ClaimedPrevWeek = TotalClaimedTill - lastWeekInfo.TotalClaimedTill                      // Claimed amount prev week
+            const filter1= {"week": reward_week, "account": account, "rewardToken": reward_token}
+            const rewardWeekInfo  = await fetchOne(USER_INFO_COLLECTION, filter1)
+            TotalVested = lastWeekInfo.TotalVested 
+            TotalClaimable = lastWeekInfo.TotalClaimable + RewardOfWeek
+            if(rewardWeekInfo){
+                VestedThisWeek = rewardWeekInfo.LockedThisWeek             // Find the lock released for the week
+                TotalVested += VestedThisWeek               // Total vested till now
+                TotalClaimable += VestedThisWeek      // Total Claimable till now (every week's 33% + all vested reward)
+                TotalLocked -= VestedThisWeek
+            }
+            ClaimableThisWeek = TotalClaimable  - TotalClaimedTill              // Claimable of this week
+            const filter2 = { $query: { "week": { $gt: reward_week }, "LockReleaseDate":{ $gt: 0 }, "account": account }, $orderby: { week: 1 } }
+            const firstLockDate = await fetchOne(USER_INFO_COLLECTION, filter2)
+            NextFirstLock = firstLockDate?.LockReleaseDate ?? LockReleaseDate
+        }
+
+        // Create user object to store for this week
+        if(TotalLocked!=0 && ClaimableThisWeek!=0){
+            const user_obj = {
+                account : account,
+                week : week,
+                week_date: week_date,
+                LockedThisWeek : LockedThisWeek,
+                LockReleaseDate :  LockReleaseDate,
+                RewardOfWeek :  RewardOfWeek,
+                rewardToken :  reward_token,
+                TotalLocked : TotalLocked,
+                TotalVested :  TotalVested,
+                VestedThisWeek :  VestedThisWeek,
+                TotalClaimedTill :  TotalClaimedTill,
+                ClaimedPrevWeek :  ClaimedPrevWeek,
+                ClaimableThisWeek :  ClaimableThisWeek,
+                TotalClaimable :  TotalClaimable,
+                NextFirstLock: NextFirstLock
+            }
+            console.log(user_obj)
+            await insert(user_obj, USER_INFO_COLLECTION)
+            users.push(user_obj)
+        }
+
+        // console.log("user address and reward of week: ", address, RewardOfWeek)
+    }
+
+    console.log("TotalR", totalR)
+
+    // Users who didn't participated in the current week but have claimable or locked amount
+    if(week > 1){
+        console.log("Checking previous week users")
+        const prev_week_users = await fetchAll(USER_INFO_COLLECTION, {"week": week - 1, "rewardToken": reward_token})
+        const uncommon_users = prev_week_users.filter(u => !users.some(u2 => u.account == u2.account))
+        // console.log("uncommon users: ", uncommon_users.length)
+        for(const prev_week_user of uncommon_users) {
+            const account = prev_week_user.account
+            let TotalClaimedTill =  claims.find(u => prev_week_user.account === u.id)?.totalClaimed ?? 0
+            TotalClaimedTill = normalise(TotalClaimedTill, 1e18)
+            const claimedPrevWeek = TotalClaimedTill - prev_week_user.TotalClaimedTill
+            const filter1= {"week": reward_week, "account": account, "rewardToken": reward_token}
+            const rewardWeekInfo  = await fetchOne(USER_INFO_COLLECTION, filter1)
+            const VestedThisWeek = rewardWeekInfo?.LockedThisWeek  ?? 0                                    // Find the lock released for the week
+            const TotalVested = prev_week_user.TotalVested  +  VestedThisWeek              // Total vested till now
+            const TotalClaimable = prev_week_user.TotalClaimable + VestedThisWeek      // Total Claimable till now (every week's 33% + all vested reward)
+            const ClaimableThisWeek = TotalClaimable  - normalise(TotalClaimedTill, output_decimal)              // Claimable of this week
+            const filter2 = { $query: { "week": { $gt: reward_week }, "LockReleaseDate": { $gt: 0 }, "account": account, "rewardToken": reward_token }, $orderby: { week: 1 } }
+            const firstLockDate = await fetchOne(USER_INFO_COLLECTION, filter2)
+            const NextFirstLock = firstLockDate?.LockReleaseDate ?? 0
+            if(prev_week_user.TotalLocked != 0 &&  ClaimableThisWeek != 0){
+                const user_obj = {
+                    account : prev_week_user.account,
+                    week : week,
+                    week_date: (new Date()).getTime(),
+                    LockedThisWeek :  0,
+                    LockReleaseDate :  0,
+                    RewardOfWeek :  0,
+                    rewardToken :  prev_week_user.rewardToken,
+                    TotalLocked : prev_week_user.TotalLocked,
+                    TotalVested : TotalVested,
+                    VestedThisWeek :  prev_week_user.VestedThisWeek,
+                    TotalClaimedTill :  TotalClaimedTill,
+                    ClaimedPrevWeek : claimedPrevWeek,
+                    ClaimableThisWeek :  ClaimableThisWeek,
+                    TotalClaimable : TotalClaimable,
+                    NextFirstLock : NextFirstLock
+                }
+                console.log(user_obj)
+                users.push(user_obj)
+                await insert(user_obj, USER_INFO_COLLECTION)
+            }
+        }
+    }
+
+    return filterUsers(users, claims)
+}
+
+
+
+
 
 
 
