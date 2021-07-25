@@ -30,39 +30,30 @@ export default async function getDistribution(options: Options) {
 
 
     const claims = await queries.claims(options.claimBlock);
-    console.log(claims)
     console.log(claims.length)
-    // const final = await finalize(
-    //     options.startBlock, 
-    //     options.endBlock,
-    //     REWARD_AMOUNT,
-    //     WEEK,
-    //     REWARD_WEEK,
-    //     REWARD_TOKEN,
-    //     CONTRACT,
-    //     POOL,
-    //     UNLOCK_PERCENT,
-    //     LOCK_PERCENT,
-    //     INPUT_DECIMAL,
-    //     OUTPUT_DECIMAL,
-    //     claims,
-    //     BURRY_BONE_COLLECTION
-    //     );
+    const final = await finalize(
+        options.startBlock, 
+        options.endBlock,
+        REWARD_AMOUNT,
+        WEEK,
+        REWARD_WEEK,
+        REWARD_TOKEN,
+        CONTRACT,
+        POOL,
+        UNLOCK_PERCENT,
+        LOCK_PERCENT,
+        INPUT_DECIMAL,
+        OUTPUT_DECIMAL,
+        claims,
+        BURRY_BONE_COLLECTION
+        );
 
-    // // console.log(final.users)
-
-    // return {
-    //     amounts: final.users,
-    //     blacklisted: final.blacklisted,
-    //     merkle: parseBalanceMap(final.users),
-    //     lockInfo: final.lockInfo
-    // };
-
+    // console.log(final.users)
 
     return {
-        amounts: {},
-        blacklisted: {},
-        merkle: {},
-        lockInfo: {}
-    }
+        amounts: final.users,
+        blacklisted: final.blacklisted,
+        merkle: parseBalanceMap(final.users),
+        lockInfo: final.lockInfo
+    };
 }
