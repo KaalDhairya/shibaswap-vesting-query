@@ -367,7 +367,7 @@ export async function finalize1(startBlock: number, endBlock: number,
                 NextFirstLock: NextFirstLock
             }
             console.log(user_obj)
-            await insert(user_obj, USER_INFO_COLLECTION)
+            await insert(user_obj, "userBuryShibBoneInfoWeek2")
             users.push(user_obj)
         }
 
@@ -397,7 +397,6 @@ export async function finalize1(startBlock: number, endBlock: number,
             NextFirstLock: weekInfo.NextFirstLock
         }
         console.log(user_obj)
-        await insert(user_obj, USER_INFO_COLLECTION)
         users.push(user_obj)
     }
 
@@ -407,7 +406,7 @@ export async function finalize1(startBlock: number, endBlock: number,
     if(week > 1){
         console.log("Checking previous week users")
         const prev_week_users = await fetchAll(USER_INFO_COLLECTION, {"week": week - 1, "rewardToken": reward_token})
-        const uncommon_users = prev_week_users.filter(u => !users.some(u2 => u.account == u2.account)&&!UserList.includes(u.account))
+        const uncommon_users = prev_week_users.filter(u => !users.some(u2 => u.account == u2.account) && !UserList.includes(u.account))
         // console.log("uncommon users: ", uncommon_users.length)
         for(const prev_week_user of uncommon_users) {
             const account = prev_week_user.account
@@ -443,7 +442,7 @@ export async function finalize1(startBlock: number, endBlock: number,
                 }
                 console.log(user_obj)
                 users.push(user_obj)
-                await insert(user_obj, USER_INFO_COLLECTION)
+                await insert(user_obj, "userBuryShibBoneInfoWeek2")
             }
         }
     }
