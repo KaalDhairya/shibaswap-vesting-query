@@ -139,7 +139,7 @@ export async function finalize(startBlock: number, endBlock: number,
         }
 
         // Create user object to store for this week
-        if(TotalLocked!=0 && ClaimableThisWeek!=0){
+        if(TotalLocked!=0 || ClaimableThisWeek!=0){
             const user_obj = {
                 account : account,
                 week : week,
@@ -187,7 +187,7 @@ export async function finalize(startBlock: number, endBlock: number,
             const filter2 = { $query: { "week": { $gt: reward_week }, "LockReleaseDate": { $gt: 0 }, "account": account, "rewardToken": reward_token }, $orderby: { week: 1 } }
             const firstLockDate = await fetchOne(USER_INFO_COLLECTION, filter2)
             const NextFirstLock = firstLockDate?.LockReleaseDate ?? 0
-            if(prev_week_user.TotalLocked != 0 &&  ClaimableThisWeek != 0){
+            if(prev_week_user.TotalLocked != 0 ||  ClaimableThisWeek != 0){
                 const user_obj = {
                     account : prev_week_user.account,
                     week : week,
