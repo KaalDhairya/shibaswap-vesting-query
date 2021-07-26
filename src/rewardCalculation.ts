@@ -132,13 +132,13 @@ export async function finalize(startBlock: number, endBlock: number,
                 TotalLocked -= VestedThisWeek
             }
             ClaimableThisWeek = TotalClaimable  - TotalClaimedTill              // Claimable of this week
-            const filter2 = { $query: { "week": { $gt: reward_week }, "LockReleaseDate":{ $gt: 0 }, "account": account }, $orderby: { week: 1 } }
+            const filter2 = { $query: { "week": { $gt: reward_week }, "LockedThisWeek":{ $gt: 0 }, "account": account, "rewardToken": reward_token }, $orderby: { week: 1 } }
             const firstLockDate = await fetchOne(USER_INFO_COLLECTION, filter2)
             NextFirstLock = firstLockDate?.LockReleaseDate ?? LockReleaseDate
         }
 
         // Create user object to store for this week
-        if(TotalLocked!=0 && ClaimableThisWeek!=0){
+        if(TotalLocked!=0 || ClaimableThisWeek!=0){
             const user_obj = {
                 account : account,
                 week : week,
@@ -177,16 +177,16 @@ export async function finalize(startBlock: number, endBlock: number,
             let TotalClaimedTill =  claims.find(u => prev_week_user.account === u.id)?.totalClaimed ?? 0
             TotalClaimedTill = normalise(TotalClaimedTill, 1e18)
             const claimedPrevWeek = TotalClaimedTill - prev_week_user.TotalClaimedTill
-            const filter1= {"week": reward_week, "account": account, "rewardToken": reward_week}
+            const filter1= {"week": reward_week, "account": account, "rewardToken": reward_token}
             const rewardWeekInfo  = await fetchOne(USER_INFO_COLLECTION, filter1)
             const VestedThisWeek = rewardWeekInfo?.LockedThisWeek  ?? 0                                    // Find the lock released for the week
             const TotalVested = prev_week_user.TotalVested  +  VestedThisWeek              // Total vested till now
             const TotalClaimable = prev_week_user.TotalClaimable + VestedThisWeek      // Total Claimable till now (every week's 33% + all vested reward)
-            const ClaimableThisWeek = TotalClaimable  - normalise(TotalClaimedTill, output_decimal)              // Claimable of this week
-            const filter2 = { $query: { "week": { $gt: reward_week }, "LockReleaseDate": { $gt: 0 }, "account": account }, $orderby: { week: 1 } }
+            const ClaimableThisWeek = TotalClaimable  - TotalClaimedTill              // Claimable of this week
+            const filter2 = { $query: { "week": { $gt: reward_week }, "LockedThisWeek": { $gt: 0 }, "account": account, "rewardToken": reward_token }, $orderby: { week: 1 } }
             const firstLockDate = await fetchOne(USER_INFO_COLLECTION, filter2)
             const NextFirstLock = firstLockDate?.LockReleaseDate ?? 0
-            if(prev_week_user.TotalLocked != 0 &&  ClaimableThisWeek != 0){
+            if(prev_week_user.TotalLocked != 0 ||  ClaimableThisWeek != 0){
                 const user_obj = {
                     account : prev_week_user.account,
                     week : week,
@@ -219,7 +219,7 @@ function filterUsers(users, claims){
     const blacklist = Blacklist.map((a:String)=>a.toLowerCase())
     return {
         users: users
-            // .filter(user => user.ClaimableThisWeek >= 1e-18)
+            .filter(user => user.ClaimableThisWeek >= 1e-18)
             .filter(user => !blacklist.includes(user.account))
             .map(user => {
                 return ({
@@ -227,12 +227,12 @@ function filterUsers(users, claims){
                     vested: BigInt(Math.floor((user.ClaimableThisWeek)))
                 })
             })
-            // .filter(user => user.vested > BigInt(0))
+            .filter(user => user.vested > BigInt(0))
             .map(user => ({[user.address]: String(user.vested)}))
             .reduce((a, b) => ({...a, ...b}), {}),
 
         blacklisted: users
-            // .filter(user => user.ClaimableThisWeek >= 1e-18)
+            .filter(user => user.ClaimableThisWeek >= 1e-18)
             .filter(user => blacklist.includes(user.account))
             .map(user => {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
                 return ({
@@ -240,7 +240,7 @@ function filterUsers(users, claims){
                     vested: BigInt(Math.floor((user.ClaimableThisWeek)))
                 })
             })
-            // .filter(user => user.vested > BigInt(0))
+            .filter(user => user.vested > BigInt(0))
             .map(user => ({[user.address]: String(user.vested)}))
             .reduce((a, b) => ({...a, ...b}), {}),
         
@@ -255,7 +255,7 @@ function filterUsers(users, claims){
                     totalClaimed: user.TotalClaimedTill
                 })
             })
-            // .filter(user => user.locked > BigInt(0))
+            .filter(user => user.locked > BigInt(0))
             .map(user => ({[user.address]: {address: user.address, locked: String(user.locked), nextLockDate: user.nextLockDate, totalClaimed: user.totalClaimed}}))
             .reduce((a, b) => ({...a, ...b}), {})
     }
