@@ -15,6 +15,7 @@ program
     .option('-c, --claimBlock <number>')
     .option('-ow, --overwrite <boolean>')
     .option('-pd, --prod <boolean>')
+    .option('-nf, --noFile <boolean>')
 
 program.parse(process.argv);
 
@@ -27,7 +28,7 @@ async function main() {
         claimBlock: Number(program.opts().claimBlock ?? await shibaSwapData.utils.timestampToBlock(Date.now())),
         overwrite: Boolean(program.opts().overwrite ?? false),
         prod: Boolean(program.opts().prod ?? false),
-        noFile: Boolean(program.opts().prod ?? false)
+        noFile: Boolean(program.opts().noFile ?? false)
     }
 
     const distribution = await getDistribution(options);
