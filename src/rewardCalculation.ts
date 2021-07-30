@@ -255,6 +255,7 @@ export async function finalize(startBlock: number, endBlock: number, overwrite: 
         }
     }
     if(NoFile){
+        console.log("DB process completed. No File will be generated")
         return {
             users: {},
             blacklisted: {},
