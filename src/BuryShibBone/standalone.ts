@@ -1,22 +1,19 @@
 import { Command } from "commander";
 import fs from "fs";
 import shibaSwapData from '@shibaswap/shibaswap-data-snoop';
+import { Options } from '../types'
 
 import getDistribution from './index';
 import { VESTING_START } from "../constants";
 
 const program = new Command();
 
-type Options = {
-    startBlock: number,
-    endBlock: number,
-    claimBlock: number
-};
-
 program
     .option('-s, --startBlock <number>')
-    .requiredOption('-e, --endBlock <number>')
+    .option('-e, --endBlock <number>')
     .option('-c, --claimBlock <number>')
+    .option('-ow, --overwrite <boolean>')
+    .option('-pd, --prod <boolean>')
 
 program.parse(process.argv);
 
@@ -26,7 +23,9 @@ async function main() {
     const options: Options = {
         startBlock: Number(program.opts().startBlock ?? VESTING_START),
         endBlock: Number(program.opts().endBlock),
-        claimBlock: Number(program.opts().claimBlock ?? await shibaSwapData.utils.timestampToBlock(Date.now()))
+        claimBlock: Number(program.opts().claimBlock ?? await shibaSwapData.utils.timestampToBlock(Date.now())),
+        overwrite: Boolean(program.opts().overwrite ?? false),
+        prod: Boolean(program.opts().prod ?? false)
     }
 
     const distribution = await getDistribution(options);

@@ -1,6 +1,6 @@
 import { fetchAll, fetchOne, insert } from './Database/utils'
 import { USER_INFO_COLLECTION, WEEKLY_REWARD_INFO_COLLECTION } from './Database/constants';
-import { LOCK_PERIOD, VESTING_POOL_ID } from "./constants";
+import { LOCK_PERIOD } from "./constants";
 import Blacklist from './blacklist.json';
 import queries from './genericQueries'
 
@@ -73,12 +73,12 @@ async function CalculateUserRewardsBlockByBlock(startBlock, endBlock, reward_amo
 
 
 
-export async function finalize(startBlock: number, endBlock: number,
+export async function finalize(startBlock: number, endBlock: number, overwrite: boolean, prod: boolean,
     reward_amount: number, week: number, reward_week: number, reward_token: String, 
     contract, poolId, unloack_percent, lock_percent, input_decimal, output_decimal, claims, rewardShareCollection
     ) {
 
-    if(!claims || typeof claims === 'undefined' || claims.length === 0){
+    if(week !== 1 && (!claims || typeof claims === 'undefined' || claims.length === 0)){
         console.error("No claims recieved")
         return {
             users: {},
@@ -86,6 +86,27 @@ export async function finalize(startBlock: number, endBlock: number,
             lockInfo: {}
         }
     }
+
+    let COLLECTION_TO_WRITE = USER_INFO_COLLECTION
+    if(!prod){
+        var nowDate = new Date(); 
+        var date = nowDate.getDate()+'/'+(nowDate.getMonth()+1)+'/'+nowDate.getFullYear(); 
+        COLLECTION_TO_WRITE = USER_INFO_COLLECTION+"_week_"+week+"_"+date
+    }
+
+    if(!overwrite){
+        const filter = { "week": week, "rewardToken": reward_token }
+        const checkdup = await fetchOne(COLLECTION_TO_WRITE, filter)
+        if(checkdup && checkdup != null){
+            console.error("Entries already present for the reward of the week. Are you sure you want to overwrite? If so pass -ow")
+            return {
+                users: {},
+                blacklisted: {},
+                lockInfo: {}
+            }
+        }
+    }
+
 
     // Calculate the user rewards per block for the week. This is 33% of the total reward user should get.
     const usersA = await CalculateUserRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection)
@@ -157,7 +178,7 @@ export async function finalize(startBlock: number, endBlock: number,
                 NextFirstLock: NextFirstLock
             }
             console.log(user_obj)
-            await insert(user_obj, USER_INFO_COLLECTION)
+            await insert(user_obj, COLLECTION_TO_WRITE)
             users.push(user_obj)
         }
 
@@ -206,7 +227,7 @@ export async function finalize(startBlock: number, endBlock: number,
                 }
                 console.log(user_obj)
                 users.push(user_obj)
-                await insert(user_obj, USER_INFO_COLLECTION)
+                await insert(user_obj, COLLECTION_TO_WRITE)
             }
         }
     }

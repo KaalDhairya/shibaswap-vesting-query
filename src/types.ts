@@ -16,8 +16,11 @@ type UsersConsolidated = {
 export type Options = {
     startBlock: number,
     endBlock: number,
-    claimBlock?: number
+    claimBlock?: number,
+    overwrite: boolean,
+    prod: boolean 
 };
+
 
 // type DataPart = {
 //     info: Info,
