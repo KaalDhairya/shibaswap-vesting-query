@@ -26,7 +26,8 @@ async function main() {
         endBlock: Number(program.opts().endBlock),
         claimBlock: Number(program.opts().claimBlock ?? await shibaSwapData.utils.timestampToBlock(Date.now())),
         overwrite: Boolean(program.opts().overwrite ?? false),
-        prod: Boolean(program.opts().prod ?? false)
+        prod: Boolean(program.opts().prod ?? false),
+        noFile: Boolean(program.opts().prod ?? false)
     }
 
     const distribution = await getDistribution(options);

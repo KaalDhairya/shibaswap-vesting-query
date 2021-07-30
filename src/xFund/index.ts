@@ -4,6 +4,7 @@ import queries from './queries';
 import { finalize } from '../rewardCalculation'
 import { Options } from '../types'
 import { TOPDOG_COLLECTION } from '../Database/constants';
+import { option } from 'commander';
 
 
 export default async function getDistribution(options: Options) {
@@ -52,7 +53,8 @@ export default async function getDistribution(options: Options) {
         INPUT_DECIMAL,
         OUTPUT_DECIMAL,
         [],
-        TOPDOG_COLLECTION
+        TOPDOG_COLLECTION,
+        options.noFile
         );
 
     // console.log(final.users)
