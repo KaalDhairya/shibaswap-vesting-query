@@ -15,9 +15,9 @@ export default async function getDistribution(options: Options) {
     // const data = redirect(await fetchData(options.startBlock, options.endBlock, options.claimBlock));
     // Rewars claimed by the users till now 
 
-    const WEEK = 1;
+    const WEEK = 2;
     const REWARD_WEEK = 0;
-    const REWARD_AMOUNT = 5000;   //33% of total rewards
+    const REWARD_AMOUNT = 65;   //33% of total rewards
 
 
 
