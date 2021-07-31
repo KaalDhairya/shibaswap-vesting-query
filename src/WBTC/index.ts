@@ -52,7 +52,8 @@ export default async function getDistribution(options: Options) {
         INPUT_DECIMAL,
         OUTPUT_DECIMAL,
         claims,
-        TOPDOG_COLLECTION
+        TOPDOG_COLLECTION,
+        options.noFile
         );
 
     // console.log(final.users)

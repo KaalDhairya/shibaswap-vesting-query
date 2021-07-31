@@ -49,7 +49,8 @@ export default async function getDistribution(options: Options) {
         INPUT_DECIMAL,
         OUTPUT_DECIMAL,
         claims,
-        BURRY_LEASH_COLLECTION
+        BURRY_LEASH_COLLECTION,
+        options.noFile
         );
 
     // console.log(final.users)

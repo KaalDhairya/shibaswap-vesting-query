@@ -14,6 +14,7 @@ program
     .option('-c, --claimBlock <number>')
     .option('-ow, --overwrite <boolean>')
     .option('-pd, --prod <boolean>')
+    .option('-nf, --noFile <boolean>')
 
 program.parse(process.argv);
 
@@ -25,40 +26,41 @@ async function main() {
         endBlock: Number(program.opts().endBlock),
         claimBlock: Number(program.opts().claimBlock ?? await shibaSwapData.utils.timestampToBlock(Date.now())),
         overwrite: Boolean(program.opts().overwrite ?? false),
-        prod: Boolean(program.opts().prod ?? false)
+        prod: Boolean(program.opts().prod ?? false),
+        noFile: Boolean(program.opts().noFile ?? false)
     }
 
     const distribution = await getDistribution(options);
 
     console.log("Generating files")
 
-    if(!fs.existsSync('./outputs/WBTC')) {
-        fs.mkdirSync('./outputs/WBTC', { recursive: true})
+    if(!fs.existsSync('./outputs/XFUND')) {
+        fs.mkdirSync('./outputs/XFUND', { recursive: true})
     }
 
     fs.writeFileSync(
-        `./outputs/WBTC/amounts-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
+        `./outputs/XFUND/amounts-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
         JSON.stringify(
             distribution.amounts, null, 1
         )
     );
 
     fs.writeFileSync(
-        `./outputs/WBTC/blacklisted-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
+        `./outputs/XFUND/blacklisted-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
         JSON.stringify(
             distribution.blacklisted, null, 1
         )
     );
 
     fs.writeFileSync(
-        `./outputs/WBTC/merkle-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
+        `./outputs/XFUND/merkle-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
         JSON.stringify(
             distribution.merkle, null, 1
         )
     )
 
     fs.writeFileSync(
-        `./outputs/WBTC/lockInfo-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
+        `./outputs/XFUND/lockInfo-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
         JSON.stringify(
             distribution.lockInfo, null, 1
         )

@@ -18,7 +18,8 @@ export type Options = {
     endBlock: number,
     claimBlock?: number,
     overwrite: boolean,
-    prod: boolean 
+    prod: boolean,
+    noFile: boolean 
 };
 
 

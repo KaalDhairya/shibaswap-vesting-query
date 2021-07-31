@@ -50,7 +50,8 @@ export default async function getDistribution(options: Options) {
         INPUT_DECIMAL,
         OUTPUT_DECIMAL,
         claims,
-        BURRY_SHIB_COLLECTION
+        BURRY_SHIB_COLLECTION,
+        options.noFile
         );
 
     // console.log(final.users)
