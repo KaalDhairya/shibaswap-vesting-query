@@ -367,7 +367,7 @@ export async function finalize1(startBlock: number, endBlock: number,
                 NextFirstLock: NextFirstLock
             }
             console.log(user_obj)
-            await insert(user_obj, "userBuryShibBoneInfoWeek2")
+            await insert(user_obj, "userBuryShibBoneInfoWeek2_1")
             users.push(user_obj)
         }
 
@@ -379,6 +379,7 @@ export async function finalize1(startBlock: number, endBlock: number,
         const account = user.toLowerCase()
         const filter = { "week": 2, "account": account, "rewardToken": reward_token }
         const weekInfo = await fetchOne(USER_INFO_COLLECTION, filter)
+        const TotalClaimedTill = claims.find(u => account === u.id)?.totalClaimed ?? 0 
         const user_obj = {
             account : account,
             week : 2,
@@ -390,13 +391,14 @@ export async function finalize1(startBlock: number, endBlock: number,
             TotalLocked : weekInfo.TotalLocked,
             TotalVested :  weekInfo.TotalVested,
             VestedThisWeek :  weekInfo.VestedThisWeek,
-            TotalClaimedTill :  weekInfo.TotalClaimedTill,
-            ClaimedPrevWeek :  weekInfo.ClaimedPrevWeek,
-            ClaimableThisWeek :  0,
-            TotalClaimable :  weekInfo.TotalClaimable,
+            TotalClaimedTill :  TotalClaimedTill,
+            ClaimedPrevWeek :  TotalClaimedTill,
+            ClaimableThisWeek :  TotalClaimedTill,
+            TotalClaimable :  TotalClaimedTill,
             NextFirstLock: weekInfo.NextFirstLock
         }
         console.log(user_obj)
+        await insert(user_obj, "userBuryShibBoneInfoWeek2_1")
         users.push(user_obj)
     }
 
@@ -442,7 +444,7 @@ export async function finalize1(startBlock: number, endBlock: number,
                 }
                 console.log(user_obj)
                 users.push(user_obj)
-                await insert(user_obj, "userBuryShibBoneInfoWeek2")
+                await insert(user_obj, "userBuryShibBoneInfoWeek2_1")
             }
         }
     }
