@@ -367,7 +367,7 @@ export async function finalize1(startBlock: number, endBlock: number,
                 NextFirstLock: NextFirstLock
             }
             console.log(user_obj)
-            await insert(user_obj, "userBuryShibBoneInfoWeek2_1")
+            await insert(user_obj, USER_INFO_COLLECTION)
             users.push(user_obj)
         }
 
@@ -398,7 +398,7 @@ export async function finalize1(startBlock: number, endBlock: number,
             NextFirstLock: weekInfo.NextFirstLock
         }
         console.log(user_obj)
-        await insert(user_obj, "userBuryShibBoneInfoWeek2_1")
+        await insert(user_obj, USER_INFO_COLLECTION)
         users.push(user_obj)
     }
 
@@ -444,7 +444,7 @@ export async function finalize1(startBlock: number, endBlock: number,
                 }
                 console.log(user_obj)
                 users.push(user_obj)
-                await insert(user_obj, "userBuryShibBoneInfoWeek2_1")
+                await insert(user_obj, USER_INFO_COLLECTION)
             }
         }
     }
