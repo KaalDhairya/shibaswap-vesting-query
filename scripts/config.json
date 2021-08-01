@@ -12,13 +12,13 @@
         "checkMongoData_BuryBone": false,
         "checkMongoData_TopDog": false,
 
-        "TopDogFlag": true,
+        "TopDogFlag": false,
         "BuryBoneFlag": false,
         "BuryLeashFlag": false,
         "BuryShibFlag": false,
 
         "checkRewardDistribution_BuryShib": false,
-        "breakMerkleFlag": true,
+        "breakMerkleFlag": false,
 
         "BuryBoneStartBlock": 12771565,
         
