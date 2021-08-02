@@ -378,13 +378,13 @@ export async function finalize1(startBlock: number, endBlock: number,
     for(const user of UserList){
         const account = user.toLowerCase()
         const filter = { "week": 2, "account": account, "rewardToken": reward_token }
-        const weekInfo = await fetchOne("userBuryShibBoneInfo", filter)
+        const weekInfo = await fetchOne(USER_INFO_COLLECTION, filter)
         let TotalClaimedTill = claims.find(u => account === u.id)?.totalClaimed ?? 0 
         TotalClaimedTill = normalise(TotalClaimedTill, 1e18)  
         const user_obj = {
             account : account,
             week : 2,
-            week_date: (new Date()).getTime(),
+            week_date: weekInfo.week_date,
             LockedThisWeek : weekInfo.LockedThisWeek,
             LockReleaseDate :  weekInfo.LockReleaseDate,
             RewardOfWeek :  weekInfo.RewardOfWeek,
