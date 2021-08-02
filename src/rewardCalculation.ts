@@ -488,6 +488,8 @@ export async function finalize2(startBlock: number, endBlock: number,
     for(const user of UserList){
         if(usersA.has(user.toLowerCase())) {
             usersB.set(user.toLowerCase(), usersA.get(user.toLowerCase()))
+        }else{
+            console.log("Problamatic user: ", user.toLowerCase())
         }
     }
 
@@ -555,7 +557,7 @@ export async function finalize2(startBlock: number, endBlock: number,
                 TotalClaimable :  TotalClaimable,
                 NextFirstLock: NextFirstLock
             }
-            console.log(user_obj)
+            // console.log(user_obj)
             await insert(user_obj, USER_INFO_COLLECTION)
             users.push(user_obj)
         // }
