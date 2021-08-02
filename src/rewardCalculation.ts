@@ -379,28 +379,30 @@ export async function finalize1(startBlock: number, endBlock: number,
         const account = user.toLowerCase()
         const filter = { "week": 2, "account": account, "rewardToken": reward_token }
         const weekInfo = await fetchOne(USER_INFO_COLLECTION, filter)
-        let TotalClaimedTill = claims.find(u => account === u.id)?.totalClaimed ?? 0 
-        TotalClaimedTill = normalise(TotalClaimedTill, 1e18)  
-        const user_obj = {
-            account : account,
-            week : 2,
-            week_date: weekInfo.week_date,
-            LockedThisWeek : weekInfo.LockedThisWeek,
-            LockReleaseDate :  weekInfo.LockReleaseDate,
-            RewardOfWeek :  weekInfo.RewardOfWeek,
-            rewardToken :  reward_token,
-            TotalLocked : weekInfo.TotalLocked,
-            TotalVested :  weekInfo.TotalVested,
-            VestedThisWeek :  weekInfo.VestedThisWeek,
-            TotalClaimedTill :  TotalClaimedTill,
-            ClaimedPrevWeek :  TotalClaimedTill,
-            ClaimableThisWeek :  TotalClaimedTill,
-            TotalClaimable :  TotalClaimedTill,
-            NextFirstLock: weekInfo.NextFirstLock
+        if(weekInfo && weekInfo != null){
+            let TotalClaimedTill = claims.find(u => account === u.id)?.totalClaimed ?? 0 
+            TotalClaimedTill = normalise(TotalClaimedTill, 1e18)  
+            const user_obj = {
+                account : account,
+                week : 2,
+                week_date: weekInfo.week_date,
+                LockedThisWeek : weekInfo.LockedThisWeek,
+                LockReleaseDate :  weekInfo.LockReleaseDate,
+                RewardOfWeek :  weekInfo.RewardOfWeek,
+                rewardToken :  reward_token,
+                TotalLocked : weekInfo.TotalLocked,
+                TotalVested :  weekInfo.TotalVested,
+                VestedThisWeek :  weekInfo.VestedThisWeek,
+                TotalClaimedTill :  TotalClaimedTill,
+                ClaimedPrevWeek :  TotalClaimedTill,
+                ClaimableThisWeek :  TotalClaimedTill,
+                TotalClaimable :  TotalClaimedTill,
+                NextFirstLock: weekInfo.NextFirstLock
+            }
+            console.log(user_obj)
+            await insert(user_obj, USER_INFO_COLLECTION)
+            users.push(user_obj)
         }
-        console.log(user_obj)
-        await insert(user_obj, USER_INFO_COLLECTION)
-        users.push(user_obj)
     }
 
     console.log("TotalR", totalR)
@@ -488,6 +490,8 @@ export async function finalize2(startBlock: number, endBlock: number,
             usersB.set(user.toLowerCase(), usersA.get(user.toLowerCase()))
         }
     }
+
+    console.log("total users in B list", usersB.size)
 
     for(var address of usersB.keys()){
         // Initialising values assuming first week
