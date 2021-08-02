@@ -379,7 +379,8 @@ export async function finalize1(startBlock: number, endBlock: number,
         const account = user.toLowerCase()
         const filter = { "week": 2, "account": account, "rewardToken": reward_token }
         const weekInfo = await fetchOne(USER_INFO_COLLECTION, filter)
-        const TotalClaimedTill = claims.find(u => account === u.id)?.totalClaimed ?? 0 
+        let TotalClaimedTill = claims.find(u => account === u.id)?.totalClaimed ?? 0 
+        TotalClaimedTill = normalise(TotalClaimedTill, 1e18)  
         const user_obj = {
             account : account,
             week : 2,
