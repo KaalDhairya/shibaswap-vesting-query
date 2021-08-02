@@ -1,7 +1,7 @@
 import shibaSwapData from '@shibaswap/shibaswap-data-snoop';
 import { parseBalanceMap } from '../parse-balance-map'
 import queries from './queries';
-import { finalize, calculateTotal, finalize1 } from '../rewardCalculation'
+import { finalize, calculateTotal, finalize1, finalize2 } from '../rewardCalculation'
 import { Options } from '../types'
 import { BURRY_SHIB_COLLECTION } from '../Database/constants';
 
@@ -35,7 +35,7 @@ export default async function getDistribution(options: Options) {
 
     const claims = await queries.claims(options.claimBlock);
     console.log(claims.length)
-    const final = await finalize1(
+    const final = await finalize2(
         options.startBlock, 
         options.endBlock,
         REWARD_AMOUNT,
