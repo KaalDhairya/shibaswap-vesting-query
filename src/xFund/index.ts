@@ -36,7 +36,7 @@ export default async function getDistribution(options: Options) {
 
 
     //MERKLE NEEDS TO BE ADDED
-    // const claims = await queries.claims(options.claimBlock);
+    const claims = await queries.claims(options.claimBlock);
     const final = await finalize(
         options.startBlock, 
         options.endBlock,
@@ -52,7 +52,7 @@ export default async function getDistribution(options: Options) {
         LOCK_PERCENT,
         INPUT_DECIMAL,
         OUTPUT_DECIMAL,
-        [],
+        claims,
         TOPDOG_COLLECTION,
         options.noFile
         );
