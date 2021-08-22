@@ -1,4 +1,4 @@
-import { fetchAll, fetchOne, insert } from './Database/utils'
+import { fetchAll, fetchEntryBySort, fetchOne, insert } from './Database/utils'
 import { USER_INFO_COLLECTION, WEEKLY_REWARD_INFO_COLLECTION } from './Database/constants';
 import { LOCK_PERIOD } from "./constants";
 import Blacklist from './blacklist.json';
@@ -176,8 +176,8 @@ export async function finalize(startBlock: number, endBlock: number, overwrite: 
                 TotalLocked -= VestedThisWeek
             }
             ClaimableThisWeek = TotalClaimable  - TotalClaimedTill              // Claimable of this week
-            const filter2 = { $query: { "week": { $gt: reward_week }, "LockedThisWeek":{ $gt: 0 }, "account": account, "rewardToken": reward_token }, $orderby: { week: 1 } }
-            const firstLockDate = await fetchOne(USER_INFO_COLLECTION, filter2)
+            const filter2 = { "week": { $gt: reward_week }, "LockedThisWeek": { $gt: 0 }, "account": account, "rewardToken": reward_token }
+            const firstLockDate = await fetchEntryBySort(USER_INFO_COLLECTION, filter2, {}, { week: 1 })
             NextFirstLock = firstLockDate?.LockReleaseDate ?? LockReleaseDate
         }
 
@@ -227,8 +227,8 @@ export async function finalize(startBlock: number, endBlock: number, overwrite: 
             const TotalVested = prev_week_user.TotalVested  +  VestedThisWeek              // Total vested till now
             const TotalClaimable = prev_week_user.TotalClaimable + VestedThisWeek      // Total Claimable till now (every week's 33% + all vested reward)
             const ClaimableThisWeek = TotalClaimable  - TotalClaimedTill              // Claimable of this week
-            const filter2 = { $query: { "week": { $gt: reward_week }, "LockedThisWeek": { $gt: 0 }, "account": account, "rewardToken": reward_token }, $orderby: { week: 1 } }
-            const firstLockDate = await fetchOne(USER_INFO_COLLECTION, filter2)
+            const filter2 = { "week": { $gt: reward_week }, "LockedThisWeek": { $gt: 0 }, "account": account, "rewardToken": reward_token }
+            const firstLockDate = await fetchEntryBySort(USER_INFO_COLLECTION, filter2, {}, { week: 1 })
             const NextFirstLock = firstLockDate?.LockReleaseDate ?? 0
             if(prev_week_user.TotalLocked != 0 ||  ClaimableThisWeek != 0){
                 const user_obj = {
