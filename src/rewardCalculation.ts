@@ -177,7 +177,7 @@ export async function finalize(startBlock: number, endBlock: number, overwrite: 
             }
             ClaimableThisWeek = TotalClaimable  - TotalClaimedTill              // Claimable of this week
             const filter2 = { "week": { $gt: reward_week }, "LockedThisWeek": { $gt: 0 }, "account": account, "rewardToken": reward_token }
-            const firstLockDate = await fetchEntryBySort(USER_INFO_COLLECTION, filter2, {}, { week: 1 })
+            const firstLockDate = await fetchEntryBySort(USER_INFO_COLLECTION, filter2,  { week: 1 })
             NextFirstLock = firstLockDate?.LockReleaseDate ?? LockReleaseDate
         }
 
@@ -228,7 +228,8 @@ export async function finalize(startBlock: number, endBlock: number, overwrite: 
             const TotalClaimable = prev_week_user.TotalClaimable + VestedThisWeek      // Total Claimable till now (every week's 33% + all vested reward)
             const ClaimableThisWeek = TotalClaimable  - TotalClaimedTill              // Claimable of this week
             const filter2 = { "week": { $gt: reward_week }, "LockedThisWeek": { $gt: 0 }, "account": account, "rewardToken": reward_token }
-            const firstLockDate = await fetchEntryBySort(USER_INFO_COLLECTION, filter2, {}, { week: 1 })
+            const firstLockDate = await fetchEntryBySort(USER_INFO_COLLECTION, filter2, { week: 1 })
+            // console.log(firstLockDate);
             const NextFirstLock = firstLockDate?.LockReleaseDate ?? 0
             if(prev_week_user.TotalLocked != 0 ||  ClaimableThisWeek != 0){
                 const user_obj = {

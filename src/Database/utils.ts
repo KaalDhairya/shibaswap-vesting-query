@@ -37,10 +37,11 @@ export async function fetchOne(collection, filter): Promise<any>{
     return result;
 }
 
-export async function fetchEntryBySort(collection, filter, select={}, sort={}): Promise<any>{
+export async function fetchEntryBySort(collection, filter, sort={}): Promise<any>{
     const db = await MongoClient.connect(URL);
       var dbo = await db.db(DB);
-      const result = await dbo.collection(collection).find(filter, { projection : select }).sort(sort).limit(1).toArray()[0]
+      // console.log(collection, filter, sort)
+      const result = (await dbo.collection(collection).find(filter).sort(sort).limit(1).toArray())[0]
       // console.log(result);
       await db.close();
       return result;

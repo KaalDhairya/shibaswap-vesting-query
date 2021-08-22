@@ -13,11 +13,12 @@ export default async function getDistribution(options: Options) {
     console.log(options.claimBlock);
     // Fetch the data and redirect the addresses right away
     // const data = redirect(await fetchData(options.startBlock, options.endBlock, options.claimBlock));
-    // Rewars claimed by the users till now 
+    // Rewars claimed by the users till now
 
-    const WEEK = 3;
+
+    const WEEK = 4;
     const REWARD_WEEK = 0;
-    const REWARD_AMOUNT = 14652.66;   //33% of total rewards
+    const REWARD_AMOUNT = 33000;   //33% of total rewards
 
 
 
