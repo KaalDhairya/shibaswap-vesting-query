@@ -37,15 +37,11 @@ export async function fetchOne(collection, filter): Promise<any>{
     return result;
 }
 
-// MongoClient.connect(URL, function(err, db) {
-    //     if (err) throw err;
-    //     var dbo = db.db(DB);
-    //     console.log(filter)
-    //     return dbo.collection(collection).findOne(filter, function(err, result) {
-    //       if (err) throw err;
-    //       console.log("reached at find")
-    //       db.close();
-    //       console.log("result",result)
-    //       return result;
-    //     });
-    //   });
+export async function fetchEntryBySort(collection, filter, select={}, sort={}): Promise<any>{
+    const db = await MongoClient.connect(URL);
+      var dbo = await db.db(DB);
+      const result = await dbo.collection(collection).find(filter, { projection : select }).sort(sort).limit(1).toArray()[0]
+      // console.log(result);
+      await db.close();
+      return result;
+  }
