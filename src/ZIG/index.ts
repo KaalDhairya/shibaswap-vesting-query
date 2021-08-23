@@ -3,7 +3,8 @@ import { parseBalanceMap } from '../parse-balance-map'
 import queries from './queries';
 import { finalize } from '../rewardCalculation'
 import { Options } from '../types'
-import { BURRY_SHIB_COLLECTION } from '../Database/constants';
+import { TOPDOG_COLLECTION } from '../Database/constants';
+import { option } from 'commander';
 
 
 export default async function getDistribution(options: Options) {
@@ -16,27 +17,25 @@ export default async function getDistribution(options: Options) {
     // Rewars claimed by the users till now 
 
 
-    const WEEK = 4;
+    const WEEK = 1;
     const REWARD_WEEK = 0;
-    const REWARD_AMOUNT = 43934.22;   //33% of total rewards
+    const REWARD_AMOUNT = 5000;   //33% of total rewards
 
 
 
 
-    // Do not change
+    // DO NOT CHANGE
     const VESTED_AMOUNT = 0;
     const INPUT_DECIMAL = 1e18;
     const OUTPUT_DECIMAL = 1e18;
-    const POOL = -1;
+    const POOL = 8;
     const LOCK_PERCENT = 67;
     const UNLOCK_PERCENT = 33;
-    const REWARD_TOKEN = "SHIB_BONE"
-    const CONTRACT = "BuryShib"
-    
+    const REWARD_TOKEN = "ZIG"
+    const CONTRACT = "TopDog"
 
 
-    const claims = await queries.claims(options.claimBlock);
-    console.log(claims.length)
+    // const claims = await queries.claims(options.claimBlock);
     const final = await finalize(
         options.startBlock, 
         options.endBlock,
@@ -52,8 +51,8 @@ export default async function getDistribution(options: Options) {
         LOCK_PERCENT,
         INPUT_DECIMAL,
         OUTPUT_DECIMAL,
-        claims,
-        BURRY_SHIB_COLLECTION,
+        [],
+        TOPDOG_COLLECTION,
         options.noFile
         );
 

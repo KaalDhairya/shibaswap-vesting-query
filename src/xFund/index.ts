@@ -29,13 +29,12 @@ export default async function getDistribution(options: Options) {
     const INPUT_DECIMAL = 1e18;
     const OUTPUT_DECIMAL = 1e9;
     const POOL = 8;
-    const LOCK_PERCENT = 67;
-    const UNLOCK_PERCENT = 33;
+    const LOCK_PERCENT = 0;
+    const UNLOCK_PERCENT = 100;
     const REWARD_TOKEN = "XFUND"
     const CONTRACT = "TopDog"
 
 
-    //MERKLE NEEDS TO BE ADDED
     const claims = await queries.claims(options.claimBlock);
     const final = await finalize(
         options.startBlock, 
