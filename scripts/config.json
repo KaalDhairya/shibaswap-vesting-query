@@ -15,7 +15,7 @@
         "TopDogFlag": false,
         "BuryBoneFlag": false,
         "BuryLeashFlag": false,
-        "BuryShibFlag": false,
+        "BuryShibFlag": true,
 
         "checkRewardDistribution_BuryShib": false,
         "breakMerkleFlag": false,
