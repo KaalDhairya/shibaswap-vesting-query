@@ -31,7 +31,7 @@ export default async function getDistribution(options: Options) {
     const POOL = 8;
     const LOCK_PERCENT = 0;
     const UNLOCK_PERCENT = 100;
-    const REWARD_TOKEN = "XFUND"
+    const REWARD_TOKEN = "FALCON9"
     const CONTRACT = "TopDog"
 
 

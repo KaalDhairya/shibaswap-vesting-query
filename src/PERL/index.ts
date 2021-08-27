@@ -27,11 +27,11 @@ export default async function getDistribution(options: Options) {
     // DO NOT CHANGE
     const VESTED_AMOUNT = 0;
     const INPUT_DECIMAL = 1e18;
-    const OUTPUT_DECIMAL = 1e9;
+    const OUTPUT_DECIMAL = 1e18;
     const POOL = 8;
     const LOCK_PERCENT = 0;
     const UNLOCK_PERCENT = 100;
-    const REWARD_TOKEN = "XFUND"
+    const REWARD_TOKEN = "PERL"
     const CONTRACT = "TopDog"
 
 

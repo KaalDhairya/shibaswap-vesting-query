@@ -13,6 +13,54 @@ function normalise(amount, output_decimal){
     return Math.floor(amount*output_decimal)
 }
 
+async function CalculateUserEqualRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection, reward_token){
+    let userInfo = new Map()
+    if(startBlock && endBlock){
+        let filter = {}
+        if(poolId !== -1){
+            filter = {"block_number":{ $gte: startBlock, $lte: endBlock }, "contract": contract, "poolId": poolId }
+        }else{
+            filter= {"block_number":{ $gte: startBlock, $lte: endBlock }, "contract": contract }
+        }
+        const rewardData: any[] = await fetchAll(rewardShareCollection, filter)
+        const rewardPerBlock = reward_amount/rewardData.length;
+        const l = rewardData[0].user_share.length - 1
+        let userSpotData: any[] = []
+        for(var i=0; i< 5;i++){
+            var r = Math.floor(Math.random() * l) + 1;
+            userSpotData.push({address: rewardData[0].user_share[r-1].address,  blockData: {}})
+        }
+        rewardData.forEach(blockInfo => {
+            console.log("block_number",blockInfo.block_number,rewardShareCollection)
+            blockInfo.user_share.forEach(user => {
+                const userReward = (rewardPerBlock*blockInfo.user_share.length)
+                for(var i=0;i <5;i++){
+                    if(userSpotData[i].address === user.address){
+                        userSpotData[i].blockData[blockInfo.block_number] = userReward
+                    }
+                }
+                if(userInfo.has(user.address)) {
+                    userInfo.set(user.address, userInfo.get(user.address) + userReward)
+                } else {
+                    userInfo.set(user.address, userReward)
+                }
+            });
+        });
+        if(!fs.existsSync('./spotCheck')) {
+            fs.mkdirSync('./spotCheck', { recursive: true})
+        }
+
+        fs.writeFileSync(
+            `./spotCheck/${reward_token}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
+            JSON.stringify(
+                userSpotData, null, 1
+            )
+        );
+    }
+
+    return userInfo
+}
+
 async function CalculateUserRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection, reward_token){
     let userInfo = new Map()
     if(startBlock && endBlock){
@@ -98,8 +146,8 @@ async function CalculateUserRewardsBlockByBlock(startBlock, endBlock, reward_amo
 
 export async function finalize(startBlock: number, endBlock: number, overwrite: boolean, prod: boolean,
     reward_amount: number, week: number, reward_week: number, reward_token: String, 
-    contract, poolId, unloack_percent, lock_percent, input_decimal, output_decimal, claims, rewardShareCollection, NoFile
-    ) {
+    contract, poolId, unloack_percent, lock_percent, input_decimal, output_decimal, claims, rewardShareCollection, NoFile,
+    equalRewards = false) {
 
     if(week !== 1 && (!claims || typeof claims === 'undefined' || claims.length === 0)){
         console.error("No claims recieved")
@@ -132,7 +180,8 @@ export async function finalize(startBlock: number, endBlock: number, overwrite: 
 
 
     // Calculate the user rewards per block for the week. This is 33% of the total reward user should get.
-    const usersA = await CalculateUserRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection, reward_token)
+    const usersA = equalRewards ? await CalculateUserEqualRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection, reward_token)
+            : await CalculateUserRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection, reward_token)
     // console.log(usersA)
 
     let users:any[] = []
