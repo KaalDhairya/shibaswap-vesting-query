@@ -5,6 +5,6 @@ type Claims = any[];
 export default {
     
     async claims(block_number?: number): Promise<Claims> {
-        return await shibaSwapData.swapXFUNDRewardsVesting.users({block: block_number})
+        return await shibaSwapData.swapPerlRewardsVesting.users({block: block_number})
     }
 }

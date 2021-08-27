@@ -35,7 +35,7 @@ export default async function getDistribution(options: Options) {
     const CONTRACT = "TopDog"
 
 
-    // const claims = await queries.claims(options.claimBlock);
+    const claims = await queries.claims(options.claimBlock);
     const final = await finalize(
         options.startBlock, 
         options.endBlock,
@@ -51,7 +51,7 @@ export default async function getDistribution(options: Options) {
         LOCK_PERCENT,
         INPUT_DECIMAL,
         OUTPUT_DECIMAL,
-        [],
+        claims,
         TOPDOG_COLLECTION,
         options.noFile
         );

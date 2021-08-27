@@ -4,6 +4,6 @@ type Claims = any[];
 
 export default {
     async claims(block_number?: number): Promise<Claims> {
-        return await shibaSwapData.buryshibWETHVesting.users({block: block_number})
+        return await shibaSwapData.swapRyoRewardsVesting.users({block: block_number})
     },
 }

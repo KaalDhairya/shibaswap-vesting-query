@@ -33,7 +33,7 @@ export default async function getDistribution(options: Options) {
     const CONTRACT = "BuryShib"
 
 
-    // const claims = await queries.claims(options.claimBlock);
+    const claims = await queries.claims(options.claimBlock);
     // console.log(claims.length)
     const final = await finalize(
         options.startBlock, 
@@ -50,9 +50,10 @@ export default async function getDistribution(options: Options) {
         LOCK_PERCENT,
         INPUT_DECIMAL,
         OUTPUT_DECIMAL,
-        [],
+        claims,
         BURRY_SHIB_COLLECTION,
-        options.noFile
+        options.noFile,
+        true
         );
 
     // console.log(final.users)
