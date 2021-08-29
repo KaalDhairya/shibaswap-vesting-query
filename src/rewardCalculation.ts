@@ -26,6 +26,7 @@ async function CalculateUserEqualRewards(startBlock, endBlock, reward_amount, co
         const rewardPerBlock = reward_amount/rewardData.length;
         const l = rewardData[0].user_share.length - 1
         let userSpotData: any[] = []
+        console.log("reward Per block", rewardPerBlock)
         for(var i=0; i< 5;i++){
             var r = Math.floor(Math.random() * l) + 1;
             userSpotData.push({address: rewardData[0].user_share[r-1].address,  blockData: {}})
@@ -33,7 +34,7 @@ async function CalculateUserEqualRewards(startBlock, endBlock, reward_amount, co
         rewardData.forEach(blockInfo => {
             console.log("block_number",blockInfo.block_number,rewardShareCollection)
             blockInfo.user_share.forEach(user => {
-                const userReward = (rewardPerBlock*blockInfo.user_share.length)
+                const userReward = rewardPerBlock/blockInfo.user_share.length
                 for(var i=0;i <5;i++){
                     if(userSpotData[i].address === user.address){
                         userSpotData[i].blockData[blockInfo.block_number] = userReward
