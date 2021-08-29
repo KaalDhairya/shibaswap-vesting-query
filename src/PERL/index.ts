@@ -19,7 +19,7 @@ export default async function getDistribution(options: Options) {
 
     const WEEK = 1;
     const REWARD_WEEK = 0;
-    const REWARD_AMOUNT = 5000;   //33% of total rewards
+    const REWARD_AMOUNT = 32486;   //33% of total rewards
 
 
 
@@ -28,7 +28,7 @@ export default async function getDistribution(options: Options) {
     const VESTED_AMOUNT = 0;
     const INPUT_DECIMAL = 1e18;
     const OUTPUT_DECIMAL = 1e18;
-    const POOL = 8;
+    const POOL = 24;
     const LOCK_PERCENT = 0;
     const UNLOCK_PERCENT = 100;
     const REWARD_TOKEN = "PERL"

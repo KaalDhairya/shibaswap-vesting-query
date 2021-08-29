@@ -8,8 +8,8 @@ const topDogCollection = mongoose.model('topDogCollection');
 
 let lastSslpBalance = undefined;
 let usersLength = 0;
-const POOL = 15;
-const skipBlockNumber = 60;
+const POOL = 22;
+const skipBlockNumber = 5;
 async function fetchAndStore(blockResult) {
     try{
 
@@ -25,7 +25,7 @@ async function fetchAndStore(blockResult) {
     const data = await queries.topDogRewardPools(blockResult, last_id, pool_id); //quering TopDog subgraph for this block
     console.log(lastSslpBalance, data.balance," For: ",blockResult," .. ",usersLength, " userCount", data.userCount, "this.length of users: ", data.users.length, "lastID: ", last_id);
 
-    if(lastSslpBalance == data.balance && usersLength == data.userCount || data.userCount == 0){
+    if(lastSslpBalance == data.balance && (usersLength == data.userCount || data.userCount == 0)){
         console.log("skipped: ", blockResult)
         skipThisBlock = true;
         break;

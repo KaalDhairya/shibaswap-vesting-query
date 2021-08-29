@@ -12,10 +12,10 @@
         "checkMongoData_BuryBone": false,
         "checkMongoData_TopDog": false,
 
-        "TopDogFlag": false,
+        "TopDogFlag": true,
         "BuryBoneFlag": false,
         "BuryLeashFlag": false,
-        "BuryShibFlag": true,
+        "BuryShibFlag": false,
 
         "checkRewardDistribution_BuryShib": false,
         "breakMerkleFlag": false,

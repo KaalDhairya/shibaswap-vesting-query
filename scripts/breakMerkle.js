@@ -15,7 +15,7 @@ async function breakThisMerkleFile(merklePath, rewardType){
     for (const key in merkleObj.claims) {
         console.log(`${key}: ${merkleObj.claims[key].index}`);
 
-        fs.writeFileSync(`./outputs/BuryShibBone/Merkle/${rewardType}-${key}.json`, JSON.stringify({ address:key,...merkleObj.claims[key]}, null, 2), function writeJSON(err) {
+        fs.writeFileSync(`./outputs/USDC/Merkle/${rewardType}-${key}.json`, JSON.stringify({ address:key,...merkleObj.claims[key]}, null, 2), function writeJSON(err) {
             if (err) return console.log(err);
             console.log(JSON.stringify(file));
             console.log('writing to ' + fileName);
@@ -30,7 +30,7 @@ async function main() {
 
     try{
     if(config.contract.breakMerkleFlag){
-        await breakThisMerkleFile("../outputs/BuryShibBone/merkle-12772112-12773552.json", "buryShib");
+        await breakThisMerkleFile("../outputs/USDC/merkle-12924064-13004063.json", "usdc");
     }
     } catch (err) {
         console.log("Error throw: BuryShib: ", err);
