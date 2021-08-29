@@ -34,7 +34,7 @@ export default async function getDistribution(options: Options) {
 
 
     const claims = await queries.claims(options.claimBlock);
-    // console.log(claims.length)
+    console.log(claims.length)
     const final = await finalize(
         options.startBlock, 
         options.endBlock,

@@ -28,7 +28,7 @@ export default async function getDistribution(options: Options) {
     const VESTED_AMOUNT = 0;
     const INPUT_DECIMAL = 1e18;
     const OUTPUT_DECIMAL = 1e9;
-    const POOL = 8;
+    const POOL = 19;
     const LOCK_PERCENT = 0;
     const UNLOCK_PERCENT = 100;
     const REWARD_TOKEN = "FALCON9"
@@ -36,6 +36,7 @@ export default async function getDistribution(options: Options) {
 
 
     const claims = await queries.claims(options.claimBlock);
+    console.log(claims.length)
     const final = await finalize(
         options.startBlock, 
         options.endBlock,
