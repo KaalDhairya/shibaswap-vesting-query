@@ -34,33 +34,33 @@ async function main() {
 
     console.log("Generating files")
 
-    if(!fs.existsSync('./outputs/BuryShibBone')) {
-        fs.mkdirSync('./outputs/BuryShibBone', { recursive: true})
+    if(!fs.existsSync('./outputs/BASIC_R')) {
+        fs.mkdirSync('./outputs/BASIC_R', { recursive: true})
     }
 
     fs.writeFileSync(
-        `./outputs/BuryShibBone/amounts-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
+        `./outputs/BASIC_R/amounts-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
         JSON.stringify(
             distribution.amounts, null, 1
         )
     );
 
     fs.writeFileSync(
-        `./outputs/BuryShibBone/blacklisted-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
+        `./outputs/BASIC_R/blacklisted-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
         JSON.stringify(
             distribution.blacklisted, null, 1
         )
     );
 
     fs.writeFileSync(
-        `./outputs/BuryShibBone/merkle-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
+        `./outputs/BASIC_R/merkle-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
         JSON.stringify(
             distribution.merkle, null, 1
         )
     )
 
     fs.writeFileSync(
-        `./outputs/BuryShibBone/lockInfo-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
+        `./outputs/BASIC_R/lockInfo-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
         JSON.stringify(
             distribution.lockInfo, null, 1
         )

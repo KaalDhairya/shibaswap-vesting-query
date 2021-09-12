@@ -62,7 +62,7 @@ async function CalculateUserEqualRewards(startBlock, endBlock, reward_amount, co
     return userInfo
 }
 
-async function CalculateUserRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection, reward_token){
+export async function CalculateUserRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection, reward_token){
     let userInfo = new Map()
     if(startBlock && endBlock){
         let filter = {}
@@ -143,46 +143,106 @@ async function CalculateUserRewardsBlockByBlock(startBlock, endBlock, reward_amo
     return userInfo
 }
 
-
-
-export async function finalize(startBlock: number, endBlock: number, overwrite: boolean, prod: boolean,
-    reward_amount: number, week: number, reward_week: number, reward_token: String, 
-    contract, poolId, unloack_percent, lock_percent, input_decimal, output_decimal, claims, rewardShareCollection, NoFile,
-    equalRewards = false) {
-
-    if(week !== 1 && (!claims || typeof claims === 'undefined' || claims.length === 0)){
-        console.error("No claims recieved")
-        return {
-            users: {},
-            blacklisted: {},
-            lockInfo: {}
-        }
-    }
-
-    let COLLECTION_TO_WRITE = USER_INFO_COLLECTION
-    if(!prod){
-        var nowDate = new Date(); 
-        var date = nowDate.getDate()+'/'+(nowDate.getMonth()+1)+'/'+nowDate.getFullYear(); 
-        COLLECTION_TO_WRITE = USER_INFO_COLLECTION+"_week_"+week+"_"+date
-    }
-
-    if(!overwrite){
-        const filter = { "week": week, "rewardToken": reward_token }
-        const checkdup = await fetchOne(COLLECTION_TO_WRITE, filter)
-        if(checkdup && checkdup != null){
-            console.error("Entries already present for the reward of the week. Are you sure you want to overwrite? If so pass -ow")
+export async function finalizeBasicRewards(startBlock: number, endBlock: number, overwrite: boolean, prod: boolean,
+    rewardsOfWeek, week: number, reward_week: number, reward_token, unloack_percent, lock_percent, input_decimal, output_decimal, claims, NoFile,
+    equalRewards = false){
+        if(week !== 1 && (!claims || typeof claims === 'undefined' || claims.length === 0)){
+            console.error("No claims recieved")
             return {
                 users: {},
                 blacklisted: {},
                 lockInfo: {}
             }
         }
-    }
+    
+        let COLLECTION_TO_WRITE = USER_INFO_COLLECTION
+        if(!prod){
+            var nowDate = new Date(); 
+            var date = nowDate.getDate()+'/'+(nowDate.getMonth()+1)+'/'+nowDate.getFullYear(); 
+            COLLECTION_TO_WRITE = USER_INFO_COLLECTION+"_week_"+week+"_"+date
+        }
+    
+        if(!overwrite){
+            const filter = { "week": week, "rewardToken": reward_token }
+            const checkdup = await fetchOne(COLLECTION_TO_WRITE, filter)
+            if(checkdup && checkdup != null){
+                console.error("Entries already present for the reward of the week. Are you sure you want to overwrite? If so pass -ow")
+                return {
+                    users: {},
+                    blacklisted: {},
+                    lockInfo: {}
+                }
+            }
+        }
+
+        const user_reward_array: Array<Map<any,any>> = []
+        for(const reward of rewardsOfWeek){
+            user_reward_array.push(await CalculateUserRewards(startBlock, endBlock, reward.reward_amount, reward.contract, 
+                reward.poolId, reward.rewardShareCollection, reward.reward_token ))
+        }
+        let userInfo = new Map()
+        for(const rewards of user_reward_array){
+            for(var address of rewards.keys()){
+                if(userInfo.has(address)) {
+                    userInfo.set(address, userInfo.get(address) + rewards.get(address))
+                } else {
+                    userInfo.set(address, rewards.get(address))
+                }
+            }
+        }
+
+        await getDistributionInfo(week, reward_week, reward_token,
+            unloack_percent, lock_percent, output_decimal, claims, NoFile, COLLECTION_TO_WRITE, userInfo)
+
+}
+
+export async function finalize(startBlock: number, endBlock: number, overwrite: boolean, prod: boolean,
+    reward_amount: number, week: number, reward_week: number, reward_token: String, 
+    contract, poolId, unloack_percent, lock_percent, input_decimal, output_decimal, claims, rewardShareCollection, NoFile,
+    equalRewards = false){
+        if(week !== 1 && (!claims || typeof claims === 'undefined' || claims.length === 0)){
+            console.error("No claims recieved")
+            return {
+                users: {},
+                blacklisted: {},
+                lockInfo: {}
+            }
+        }
+    
+        let COLLECTION_TO_WRITE = USER_INFO_COLLECTION
+        if(!prod){
+            var nowDate = new Date(); 
+            var date = nowDate.getDate()+'/'+(nowDate.getMonth()+1)+'/'+nowDate.getFullYear(); 
+            COLLECTION_TO_WRITE = USER_INFO_COLLECTION+"_week_"+week+"_"+date
+        }
+    
+        if(!overwrite){
+            const filter = { "week": week, "rewardToken": reward_token }
+            const checkdup = await fetchOne(COLLECTION_TO_WRITE, filter)
+            if(checkdup && checkdup != null){
+                console.error("Entries already present for the reward of the week. Are you sure you want to overwrite? If so pass -ow")
+                return {
+                    users: {},
+                    blacklisted: {},
+                    lockInfo: {}
+                }
+            }
+        }
+
+        // Calculate the user rewards per block for the week. This is 33% of the total reward user should get.
+        const usersA = equalRewards ? await CalculateUserEqualRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection, reward_token)
+        : await CalculateUserRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection, reward_token)
+
+        await getDistributionInfo(week, reward_week, reward_token,
+            unloack_percent, lock_percent, output_decimal, claims, NoFile, COLLECTION_TO_WRITE, usersA)
+
+}
 
 
-    // Calculate the user rewards per block for the week. This is 33% of the total reward user should get.
-    const usersA = equalRewards ? await CalculateUserEqualRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection, reward_token)
-            : await CalculateUserRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection, reward_token)
+
+export async function getDistributionInfo( week: number, reward_week: number, reward_token: String,
+    unloack_percent, lock_percent, output_decimal, claims, NoFile, COLLECTION_TO_WRITE, usersA) {
+
     // console.log(usersA)
 
     let users:any[] = []
