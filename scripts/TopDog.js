@@ -8,8 +8,8 @@ const topDogCollection = mongoose.model('topDogCollection');
 
 let lastSslpBalance = undefined;
 let usersLength = 0;
-const POOL = 22;
-const skipBlockNumber = 5;
+const POOL = 15;
+const skipBlockNumber = 60;
 async function fetchAndStore(blockResult) {
     try{
 
