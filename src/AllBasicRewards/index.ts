@@ -24,7 +24,8 @@ export default async function getDistribution(options: Options) {
         {reward_amount: 5900, contract: "TopDog", poolId: 1, rewardShareCollection: TOPDOG_COLLECTION, reward_token: "LEASH_ETH_BONE"},
         {reward_amount: 5900, contract: "BuryBone", poolId: -1, rewardShareCollection: BURRY_BONE_COLLECTION, reward_token: "BURYBONE_BONE"},
         {reward_amount: 5900, contract: "BuryLeash", poolId: -1, rewardShareCollection: BURRY_LEASH_COLLECTION, reward_token: "BURYLEASH_BONE"},
-        {reward_amount: 5900, contract: "BuryShib", poolId: -1, rewardShareCollection: BURRY_SHIB_COLLECTION, reward_token: "BURYSHIB_BONE"}
+        {reward_amount: 5900, contract: "BuryShib", poolId: -1, rewardShareCollection: BURRY_SHIB_COLLECTION, reward_token: "BURYSHIB_BONE", 
+            startBlock: 123, endBlock: 123}
     ]
     
     
@@ -39,7 +40,7 @@ export default async function getDistribution(options: Options) {
 
     const claims = await queries.claims(options.claimBlock);
     console.log(claims.length)
-    const final = await finalizeBasicRewards(
+    const final:any = await finalizeBasicRewards(
         options.startBlock, 
         options.endBlock,
         options.overwrite,

@@ -177,7 +177,7 @@ export async function finalizeBasicRewards(startBlock: number, endBlock: number,
 
         const user_reward_array: Array<Map<any,any>> = []
         for(const reward of rewardsOfWeek){
-            user_reward_array.push(await CalculateUserRewards(startBlock, endBlock, reward.reward_amount, reward.contract, 
+            user_reward_array.push(await CalculateUserRewards(reward.startBlock?? startBlock, reward.endBlock?? endBlock, reward.reward_amount, reward.contract, 
                 reward.poolId, reward.rewardShareCollection, reward.reward_token ))
         }
         let userInfo = new Map()
