@@ -233,8 +233,10 @@ export async function finalize(startBlock: number, endBlock: number, overwrite: 
         const usersA = equalRewards ? await CalculateUserEqualRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection, reward_token)
         : await CalculateUserRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection, reward_token)
 
-        await getDistributionInfo(week, reward_week, reward_token,
+        const finalDistribution =  await getDistributionInfo(week, reward_week, reward_token,
             unloack_percent, lock_percent, output_decimal, claims, NoFile, COLLECTION_TO_WRITE, usersA)
+
+        return finalDistribution
 
 }
 
