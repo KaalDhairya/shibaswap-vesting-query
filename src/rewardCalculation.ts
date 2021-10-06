@@ -191,9 +191,10 @@ export async function finalizeBasicRewards(startBlock: number, endBlock: number,
             }
         }
 
-        await getDistributionInfo(week, reward_week, reward_token,
+        const finalDistribution = await getDistributionInfo(week, reward_week, reward_token,
             unloack_percent, lock_percent, output_decimal, claims, NoFile, COLLECTION_TO_WRITE, userInfo)
-
+            
+        return finalDistribution
 }
 
 export async function finalize(startBlock: number, endBlock: number, overwrite: boolean, prod: boolean,
