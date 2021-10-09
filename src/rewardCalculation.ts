@@ -177,9 +177,19 @@ export async function finalizeBasicRewards(startBlock: number, endBlock: number,
 
         const user_reward_array: Array<Map<any,any>> = []
         for(const reward of rewardsOfWeek){
-            user_reward_array.push(await CalculateUserRewards(reward.startBlock?? startBlock, reward.endBlock?? endBlock, reward.reward_amount, reward.contract, 
-                reward.poolId, reward.rewardShareCollection, reward.reward_token ))
+            const userReward = await CalculateUserRewards(reward.startBlock?? startBlock, reward.endBlock?? endBlock, reward.reward_amount, reward.contract, 
+                reward.poolId, reward.rewardShareCollection, reward.reward_token )
+            if(userReward === null || userReward.size === 0){
+                console.error("User data not found for: ", reward.reward_token, reward.rewardShareCollection, reward.poolId )
+                return {
+                    users: {},
+                    blacklisted: {},
+                    lockInfo: {}
+                }
+            }
+            user_reward_array.push(userReward)
         }
+
         let userInfo = new Map()
         for(const rewards of user_reward_array){
             for(var address of rewards.keys()){
@@ -244,7 +254,7 @@ export async function finalize(startBlock: number, endBlock: number, overwrite: 
 
 
 export async function getDistributionInfo( week: number, reward_week: number, reward_token: String,
-    unloack_percent, lock_percent, output_decimal, claims, NoFile, COLLECTION_TO_WRITE, usersA) {
+    unlock_percent, lock_percent, output_decimal, claims, NoFile, COLLECTION_TO_WRITE, usersA) {
 
     // console.log(usersA)
 
@@ -256,7 +266,7 @@ export async function getDistributionInfo( week: number, reward_week: number, re
         const account = address.toLowerCase()
         const week_date = (new Date()).getTime()
         const RewardOfWeek =  normalise(usersA.get(address), output_decimal)   // 33% reward available to claim right away
-        const LockedThisWeek =  Math.floor(RewardOfWeek * lock_percent / unloack_percent)      // Calculate the rest of 67% of the reward
+        const LockedThisWeek =  Math.floor(RewardOfWeek * lock_percent / unlock_percent)      // Calculate the rest of 67% of the reward
         const LockReleaseDate =  (new Date()).getTime() + LOCK_PERIOD // Lock release date for the locked reward of the week i.e. after 6 months
         let TotalLocked = LockedThisWeek    // Total locked till now
         let TotalVested =  0                // Total vested till now i.e. Released amount till now. 0 for the 1st week
