@@ -15,9 +15,9 @@ export default async function getDistribution(options: Options) {
     // const data = redirect(await fetchData(options.startBlock, options.endBlock, options.claimBlock));
     // Rewars claimed by the users till now 
 
-    const WEEK = 1;
+    const WEEK = 2;
     const REWARD_WEEK = 0;
-    const REWARD_AMOUNT = 5000;   //33% of total rewards
+    const REWARD_AMOUNT = 1160957880226;   //33% of total rewards
 
 
 
@@ -27,9 +27,9 @@ export default async function getDistribution(options: Options) {
     const INPUT_DECIMAL = 1e18;
     const OUTPUT_DECIMAL = 1e18;
     const POOL = -1;
-    const LOCK_PERCENT = 67;
-    const UNLOCK_PERCENT = 33;
-    const REWARD_TOKEN = "WETH"
+    const LOCK_PERCENT = 0;
+    const UNLOCK_PERCENT = 100;
+    const REWARD_TOKEN = "RYOSHI"
     const CONTRACT = "BuryShib"
 
 

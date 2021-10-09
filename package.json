@@ -8,7 +8,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@shibaswap/shibaswap-data-snoop": "^1.1.1",
+    "@shibaswap/shibaswap-data-snoop": "^1.1.2",
     "@sushiswap/sushi-data": "lufycz/sushi-data#vesting",
     "axios": "^0.21.1",
     "bluebird": "^3.7.2",
@@ -37,6 +37,7 @@
     "standalone:ZIG": "ts-node src/ZIG/standalone",
     "standalone:PERL": "ts-node src/PERL/standalone",
     "standalone:F9": "ts-node src/F9/standalone",
+    "standalone:CIV": "ts-node src/CIV/standalone",
     "standalone:BuryShibRyo": "ts-node src/BuryShibRyoshi/standalone",
     "standalone:BasicRewards" : "ts-node src/AllBasicRewards/standalone",
     "generate-blacklist:USDC": "ts-node src/USDC/generate-blacklist",
