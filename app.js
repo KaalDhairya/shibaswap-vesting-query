@@ -6,9 +6,9 @@ var bodyParser = require('body-parser');
 // var verifyRequest = require('./routes/auth');
 const MongoClient = require("mongodb").MongoClient;
 var mongoose = require('mongoose');
-// var DB = 'mongodb://kaal:password@127.0.0.1:27017/vesting?authSource=admin';
-var DB = 'mongodb://localhost:27017/vesting'
-// var DB = 'mongodb+srv://shib:qXUaCrG3aI5Xfq0f@shibaswap.xslju.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
+var DB = 'mongodb://kaal:password@127.0.0.1:27017/vesting?authSource=admin';
+//var DB = 'mongodb://localhost:27017/vesting'
+//var DB = 'mongodb+srv://shib:qXUaCrG3aI5Xfq0f@shibaswap.xslju.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
 mongoose.connect(DB, {
   useNewUrlParser: true,
   useUnifiedTopology: true
