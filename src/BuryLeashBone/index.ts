@@ -16,9 +16,9 @@ export default async function getDistribution(options: Options) {
     // Rewars claimed by the users till now
 
 
-    const WEEK = 7;
+    const WEEK = 8;
     const REWARD_WEEK = 0;
-    const REWARD_AMOUNT = 23802;   //33% of total rewards
+    const REWARD_AMOUNT = 20417;   //33% of total rewards
 
 
 
