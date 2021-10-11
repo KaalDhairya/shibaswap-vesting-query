@@ -30,7 +30,7 @@ async function main() {
 
     try{
     if(config.contract.breakMerkleFlag){
-        await breakThisMerkleFile("../outputs/ZIG/merkle-13166017-13206092.json", "zig");
+        await breakThisMerkleFile("../outputs/ZIG/merkle-13256093-13302896.json", "zig");
     }
     } catch (err) {
         console.log("Error throw: BuryShib: ", err);

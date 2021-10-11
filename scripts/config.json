@@ -18,7 +18,7 @@
         "BuryShibFlag": false,
 
         "checkRewardDistribution_BuryShib": false,
-        "breakMerkleFlag": false,
+        "breakMerkleFlag": true,
 
         "BuryBoneStartBlock": 12771565,
         
