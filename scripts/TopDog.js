@@ -88,7 +88,7 @@ async function main() {
         poolId: POOL
     }
     let latestBlockNumber = 0;
-    let latestBlock = await topDogCollection.find(params).limit(1).sort({$natural:-1}); // Fetching last block in DB for TopDog
+    let latestBlock = [undefined] // await topDogCollection.find(params).limit(1).sort({$natural:-1}); // Fetching last block in DB for TopDog
     if(latestBlock[0] == undefined){
         latestBlockNumber = config.contract.TopDogStartBlock;
     } else {
