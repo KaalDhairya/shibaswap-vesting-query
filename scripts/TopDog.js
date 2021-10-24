@@ -8,8 +8,8 @@ const topDogCollection = mongoose.model('topDogCollection');
 
 let lastSslpBalance = undefined;
 let usersLength = 0;
-const POOL = 8;
-const skipBlockNumber = 1;
+const POOL = 15;
+const skipBlockNumber = 60;
 async function fetchAndStore(blockResult) {
     try{
 
@@ -88,7 +88,7 @@ async function main() {
         poolId: POOL
     }
     let latestBlockNumber = 0;
-    let latestBlock = await topDogCollection.find(params).limit(1).sort({$natural:-1}); // Fetching last block in DB for TopDog
+    let latestBlock = [undefined] // await topDogCollection.find(params).limit(1).sort({$natural:-1}); // Fetching last block in DB for TopDog
     if(latestBlock[0] == undefined){
         latestBlockNumber = config.contract.TopDogStartBlock;
     } else {
