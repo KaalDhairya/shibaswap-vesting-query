@@ -331,7 +331,6 @@ export async function getDistributionInfo( week: number, reward_week: number, re
         // console.log("user address and reward of week: ", address, RewardOfWeek)
     }
 
-    console.log("TotalR", totalR)
 
     // Users who didn't participated in the current week but have claimable or locked amount
     if(week > 1){
@@ -378,6 +377,9 @@ export async function getDistributionInfo( week: number, reward_week: number, re
             }
         }
     }
+
+    console.log("TotalR", totalR)
+    
     if(NoFile){
         console.log("DB process completed. No File will be generated")
         return {

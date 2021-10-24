@@ -8,7 +8,7 @@ const buryShibCollection = mongoose.model('buryShibCollection');
 
 let lastSslpBalance = undefined;
 let usersLength = 0;
-const skipBlockNumber = 60;
+const skipBlockNumber = 120;
 async function fetchAndStore(blockResult) {
     try{
 
