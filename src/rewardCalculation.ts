@@ -71,6 +71,7 @@ export async function CalculateUserRewards(startBlock, endBlock, reward_amount, 
         }else{
             filter= {"block_number":{ $gte: startBlock, $lte: endBlock }, "contract": contract }
         }
+        console.log(contract, startBlock, endBlock);
         const rewardData: any[] = await fetchAll(rewardShareCollection, filter)
         const rewardPerBlock = reward_amount/rewardData.length;
         const l = rewardData[0].user_share.length - 1
