@@ -8,7 +8,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@shibaswap/shibaswap-data-snoop": "^1.1.2",
+    "@shibaswap/shibaswap-data-snoop": "^1.1.4",
     "@sushiswap/sushi-data": "lufycz/sushi-data#vesting",
     "axios": "^0.21.1",
     "bluebird": "^3.7.2",
@@ -42,6 +42,8 @@
     "standalone:F9": "ts-node src/F9/standalone",
     "standalone:DAI": "ts-node src/DAI/standalone",
     "standalone:CIV": "ts-node src/CIV/standalone",
+    "standalone:UFO": "ts-node src/UFO/standalone",
+    "standalone:VEMP": "ts-node src/VEMP/standalone",
     "standalone:BuryShibBone": "ts-node src/BuryShibBone/standalone",
     "standalone:BuryBoneBone": "ts-node src/BuryBoneBone/standalone",
     "standalone:BuryShibWeth": "ts-node src/BuryShibWeth/standalone",
