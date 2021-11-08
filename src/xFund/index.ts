@@ -58,6 +58,7 @@ export default async function getDistribution(options: Options) {
         );
 
     // console.log(final.users)
+    console.log(claims.length)
 
     return {
         amounts: final.users,
