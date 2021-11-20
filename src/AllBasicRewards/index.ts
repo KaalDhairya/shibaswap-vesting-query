@@ -20,7 +20,8 @@ export default async function getDistribution(options: Options) {
     const REWARD_WEEK = 0;
 
     const rewardsOfWeek = [
-        {reward_amount: 148408, contract: "BuryShib", poolId: -1, rewardShareCollection: BURRY_SHIB_COLLECTION, reward_token: "BURYSHIB_BONE"},
+        {reward_amount: 148408, contract: "BuryShib", poolId: -1, rewardShareCollection: BURRY_SHIB_COLLECTION, reward_token: "BURYSHIB_BONE",
+         startBlock: 13546036 , endBlock: 13626282},
         {reward_amount: 15591, contract: "BuryBone", poolId: -1, rewardShareCollection: BURRY_BONE_COLLECTION, reward_token: "BURYBONE_BONE"},
         {reward_amount: 15591 , contract: "BuryLeash", poolId: -1, rewardShareCollection: BURRY_LEASH_COLLECTION, reward_token: "BURYLEASH_BONE"},
         {reward_amount: 4821, contract: "TopDog", poolId: 15, rewardShareCollection: TOPDOG_COLLECTION, reward_token: "BONE_ETH_BONE"},
