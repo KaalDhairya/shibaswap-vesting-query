@@ -260,7 +260,8 @@ export async function getDistributionInfo( week: number, reward_week: number, re
     // console.log(usersA)
 
     let users:any[] = []
-    let totalR = 0
+    let totalRewardsOfWeek = 0
+    let totalLockedInWeek = 0
     console.log("total users", usersA.size)
     for(var address of usersA.keys()){
         // Initialising values assuming first week
@@ -278,7 +279,8 @@ export async function getDistributionInfo( week: number, reward_week: number, re
         let TotalClaimable =  ClaimableThisWeek         // Cumulative claimable including what is withdrawn by user. Only for analysis
         let NextFirstLock = LockReleaseDate
 
-        totalR+=RewardOfWeek
+        totalRewardsOfWeek+=RewardOfWeek
+        totalLockedInWeek+=LockedThisWeek
 
         const PREV_WEEK  = week - 1
         const filter = { "week": PREV_WEEK, "account": account, "rewardToken": reward_token }
@@ -379,7 +381,8 @@ export async function getDistributionInfo( week: number, reward_week: number, re
         }
     }
 
-    console.log("TotalR", totalR)
+    console.log("Total Rewards Of Week", totalRewardsOfWeek)
+    console.log("Total Locked This Week", totalLockedInWeek)
     
     if(NoFile){
         console.log("DB process completed. No File will be generated")
