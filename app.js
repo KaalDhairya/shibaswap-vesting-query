@@ -38,6 +38,7 @@ require('./scripts/buryBoneCollection');
 require('./scripts/buryLeashCollection');
 require('./scripts/buryShibCollection');
 require('./scripts/topDogCollection');
+require('./scripts/convertToBone');
 
 var logger = require('morgan');
 

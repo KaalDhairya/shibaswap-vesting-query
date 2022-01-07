@@ -19,6 +19,7 @@
 
         "checkRewardDistribution_BuryShib": false,
         "breakMerkleFlag": false,
+        "convertBones": true,
 
         "BuryBoneStartBlock": 12771565,
         
