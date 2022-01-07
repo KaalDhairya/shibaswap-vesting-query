@@ -4,8 +4,8 @@ const config = require('./config.json');
 const Web3 = require('web3');
 const mongoose = require('mongoose');
 const fs = require('fs');
-const userInfoCollection = mongoose.model('user_info');
-const userInfoV3 = mongoose.model('user_info_v3')
+const userInfoCollection = mongoose.model('user_info_v3');
+const userInfoV3 = mongoose.model('user_info_bone');
 
 
 async function main() {
@@ -25,10 +25,12 @@ async function main() {
                 {name: "USDT", rate: 1}, 
                 {name: "DAI", rate: 1}
             ]
+            let TotalLockedBoneWeek = 0;
 
             for(tokenInfo in tokenInfos){
                 const reward = await userInfoCollection.find({ rewardToken: tokenInfo.name, week: WEEK }) 
                 for(userAmount in reward){
+                    console.log(userAmount.week, userAmount.account, userAmount.rewardToken, userAmount.LockedThisWeek);
                     let v3obj = await userInfoV3.find({ rewardToken: "BASIC_BONE", week: WEEK, account: userAmount.account })
                     if(v3Obj){
                         let newObj = {...v3obj}
@@ -40,6 +42,7 @@ async function main() {
                         newObj.TotalClaimedTill += (v3Obj.TotalClaimedTill/tokenInfo.rate)*BONE_RATE
                         newObj.TotalLocked += (v3Obj.TotalLocked/tokenInfo.rate)*BONE_RATE
                         await userInfoV3.findOneAndUpdate({ rewardToken: tokenInfo.name, week: WEEK, account: userAmount.account }, newObj, { new: true, upsert: true} )
+                        TotalLockedBoneWeek+=newObj.LockedThisWeek;
                     }else{
                         let obj = {...userAmount}
                         obj.week = WEEK_OVERRIDE;
@@ -51,9 +54,11 @@ async function main() {
                         obj.TotalClaimedTill = (userAmount.TotalClaimedTill/tokenInfo.rate)*BONE_RATE
                         obj.TotalLocked = (userAmount.TotalLocked/tokenInfo.rate)*BONE_RATE
                         await userInfoV3.insertOne(obj)
+                        TotalLockedBoneWeek+=obj.LockedThisWeek;
                     }   
                 }
             }
+            console.log("Total bone locked this week: ", TotalLockedBoneWeek);
         }
     }catch(err){
         console.log("Error throw: ConvertBone: ", err);
