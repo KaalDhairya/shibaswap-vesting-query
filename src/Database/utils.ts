@@ -29,10 +29,10 @@ export async function fetchAll(collection, filter, select={}): Promise<any>{
     return result;
 }
 
-export async function fetchOne(collection, filter): Promise<any>{
+export async function fetchOne(collection, filter, select={}): Promise<any>{
     const db = await MongoClient.connect(URL);
     var dbo = await db.db(DB);
-    const result = await dbo.collection(collection).findOne(filter)
+    const result = await dbo.collection(collection).findOne(filter, { projection : select })
     await db.close();
     return result;
 }

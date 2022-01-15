@@ -57,19 +57,20 @@ const userInfoV3 = mongoose.model('user_info_bone', Sche);
 async function main() {
     try{
         if(config.contract.convertBones){
-            const WEEK = 1;
-            const WEEK_OVERRIDE = -1;
+            const WEEK = 2;
+            const WEEK_OVERRIDE = -2;
             const BONE_RATE = 0.9137;
             const BONE_BASE = 18;
             console.log("start converting into bones");
+            const startT = new Date();
             const tokenInfos = [
                 {name: "WETH", rate: 3229, base: 18}, 
-                {name: "SHIB_BONE", rate: 0.9137, base: 18}, 
-                {name: "LEASH_BONE", rate: 0.9137, base: 18}, 
-                {name: "BONE_BONE", rate: 0.9137, base: 18}, 
+                {name: "SHIB_BONE", rate: BONE_RATE, base: 18}, 
+                {name: "LEASH_BONE", rate: BONE_RATE, base: 18}, 
+                {name: "BONE_BONE", rate: BONE_RATE, base: 18}, 
                 {name: "WBTC", rate: 42305, base: 8}, 
                 {name: "USDC", rate: 1, base: 6}, 
-                {name: "USDT", rate: 1, USDT: 6}, 
+                {name: "USDT", rate: 1, base: 6}, 
                 {name: "DAI", rate: 1, base: 18}
             ]
             let TotalWeth = 0;
@@ -121,7 +122,7 @@ async function main() {
                         newObj.TotalLocked += Math.floor((userAmount.TotalLocked*tokenInfo.rate*Math.pow(10, BONE_BASE-tokenInfo.base))/BONE_RATE)
                         // console.log("After update: ", newObj)
                         await userInfoV3.updateOne({ rewardToken: "BASIC_BONE", week: WEEK_OVERRIDE, account: userAmount.account }, {$set: newObj}, { upsert: true} )
-                        TotalLockedBoneWeek+=newObj.LockedThisWeek;
+                        TotalLockedBoneWeek+=Math.floor((userAmount.LockedThisWeek*tokenInfo.rate*Math.pow(10, BONE_BASE-tokenInfo.base))/BONE_RATE);
                     }else{
                         let obj = userAmount._doc
                         // console.log("object converting: ", obj)
@@ -146,7 +147,10 @@ async function main() {
             console.log("Total Usdt: ", TotalUsdt);
             console.log("Total Usdc: ", TotalUsdc);
             console.log("Total dai: ", TotalDai);
-            console.log("Total bone: ", TotalBone)
+            console.log("Total bone: ", TotalBone);
+            let endT = new Date();
+            let diffT = (endT - startT)/1000;
+            console.log("Total run time in seconds: ", diffT)
         }
     }catch(err){
         console.log("Error throw: ConvertBone: ", err);

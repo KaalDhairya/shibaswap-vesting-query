@@ -41,6 +41,7 @@
     "standalone:BuryShibRyo": "ts-node src/BuryShibRyoshi/standalone",
     "standalone:BasicRewards" : "ts-node src/AllBasicRewards/standalone",
     "generate-blacklist:USDC": "ts-node src/USDC/generate-blacklist",
+    "convertBones": "ts-node src/convertBones",
     "validate": "ts-node src/validate-address",
     "select": "ts-node src/select-data",
     "build": "tsc",
