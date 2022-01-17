@@ -74,12 +74,7 @@ async function main() {
                     if(v3obj){
                         let newObj = v3obj;
                         // console.log("Updating object: ", newObj)
-                        newObj.ClaimableThisWeek += convertBone(userAmount.ClaimableThisWeek,tokenInfo.rate,tokenInfo.base)
-                        newObj.ClaimedPrevWeek += convertBone(userAmount.ClaimedPrevWeek,tokenInfo.rate,tokenInfo.base)
                         newObj.LockedThisWeek += convertBone(userAmount.LockedThisWeek,tokenInfo.rate,tokenInfo.base)
-                        newObj.RewardOfWeek += convertBone(userAmount.RewardOfWeek,tokenInfo.rate,tokenInfo.base)
-                        newObj.TotalClaimable += convertBone(userAmount.TotalClaimable,tokenInfo.rate,tokenInfo.base)
-                        newObj.TotalClaimedTill += convertBone(userAmount.TotalClaimedTill,tokenInfo.rate,tokenInfo.base)
                         newObj.TotalLocked += convertBone(userAmount.TotalLocked,tokenInfo.rate,tokenInfo.base)
                         // console.log("After update: ", newObj)
                         await insert(newObj, userInfoV3 )
@@ -88,13 +83,13 @@ async function main() {
                         let obj = userAmount
                         // console.log("object converting: ", obj)
                         obj.week = WEEK_OVERRIDE;
-                        obj.ClaimableThisWeek += convertBone(userAmount.ClaimableThisWeek,tokenInfo.rate,tokenInfo.base)
-                        obj.ClaimedPrevWeek += convertBone(userAmount.ClaimedPrevWeek,tokenInfo.rate,tokenInfo.base)
-                        obj.LockedThisWeek += convertBone(userAmount.LockedThisWeek,tokenInfo.rate,tokenInfo.base)
-                        obj.RewardOfWeek += convertBone(userAmount.RewardOfWeek,tokenInfo.rate,tokenInfo.base)
-                        obj.TotalClaimable += convertBone(userAmount.TotalClaimable,tokenInfo.rate,tokenInfo.base)
-                        obj.TotalClaimedTill += convertBone(userAmount.TotalClaimedTill,tokenInfo.rate,tokenInfo.base)
-                        obj.TotalLocked += convertBone(userAmount.TotalLocked,tokenInfo.rate,tokenInfo.base)
+                        obj.ClaimableThisWeek = 0
+                        obj.ClaimedPrevWeek = 0
+                        obj.LockedThisWeek = convertBone(userAmount.LockedThisWeek,tokenInfo.rate,tokenInfo.base)
+                        obj.RewardOfWeek = 0
+                        obj.TotalClaimable = 0
+                        obj.TotalClaimedTill = 0
+                        obj.TotalLocked = convertBone(userAmount.TotalLocked,tokenInfo.rate,tokenInfo.base)
                         obj.rewardToken = "BASIC_BONE";
                         // console.log("after conversion: ", obj)
                         await insert(obj, userInfoV3 )

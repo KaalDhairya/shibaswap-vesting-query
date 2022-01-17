@@ -354,9 +354,10 @@ export async function getDistributionInfo( week: number, reward_week: number, re
             const ClaimableThisWeek = TotalClaimable  - TotalClaimedTill              // Claimable of this week
             const filter2 = { "week": { $gt: reward_week }, "LockedThisWeek": { $gt: 0 }, "account": account, "rewardToken": reward_token }
             const firstLockDate = await fetchEntryBySort(USER_INFO_COLLECTION, filter2, { week: 1 })
+            const TotalLocked = prev_week_user.TotalLocked - VestedThisWeek
             // console.log(firstLockDate);
             const NextFirstLock = firstLockDate?.LockReleaseDate ?? 0
-            if(prev_week_user.TotalLocked != 0 ||  ClaimableThisWeek != 0){
+            if(TotalLocked != 0 ||  ClaimableThisWeek != 0){
                 const user_obj = {
                     account : prev_week_user.account,
                     week : week,
@@ -365,9 +366,9 @@ export async function getDistributionInfo( week: number, reward_week: number, re
                     LockReleaseDate :  0,
                     RewardOfWeek :  0,
                     rewardToken :  prev_week_user.rewardToken,
-                    TotalLocked : prev_week_user.TotalLocked,
+                    TotalLocked : TotalLocked,
                     TotalVested : TotalVested,
-                    VestedThisWeek :  prev_week_user.VestedThisWeek,
+                    VestedThisWeek :  VestedThisWeek,
                     TotalClaimedTill :  TotalClaimedTill,
                     ClaimedPrevWeek : claimedPrevWeek,
                     ClaimableThisWeek :  ClaimableThisWeek,
