@@ -19,7 +19,7 @@ export default async function getDistribution(options: Options) {
 
     const WEEK = 14;
     const REWARD_WEEK = 0;
-    const REWARD_AMOUNT = 16.5;   //33% of total rewards
+    const REWARD_AMOUNT = 10;
 
 
 
