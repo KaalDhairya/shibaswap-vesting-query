@@ -258,7 +258,6 @@ export async function finalize(startBlock: number, endBlock: number, overwrite: 
         // console.log("user address and reward of week: ", address, RewardOfWeek)
     }
 
-    console.log("TotalR", totalR)
 
     // Users who didn't participated in the current week but have claimable or locked amount
     if(week > 1){
@@ -305,6 +304,9 @@ export async function finalize(startBlock: number, endBlock: number, overwrite: 
             }
         }
     }
+
+    console.log("TotalR", totalR)
+
     if(NoFile){
         console.log("DB process completed. No File will be generated")
         return {
