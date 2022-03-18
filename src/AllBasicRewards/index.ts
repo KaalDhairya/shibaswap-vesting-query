@@ -16,15 +16,15 @@ export default async function getDistribution(options: Options) {
     // Rewars claimed by the users till now 
 
 
-    const WEEK = 9;
+    const WEEK = 10;
     const REWARD_WEEK = 0;
 
     const rewardsOfWeek = [
-        {reward_amount: 102911, contract: "BuryShib", poolId: -1, rewardShareCollection: BURRY_SHIB_COLLECTION, reward_token: "BURYSHIB_BONE"},
-        {reward_amount: 9443, contract: "BuryBone", poolId: -1, rewardShareCollection: BURRY_BONE_COLLECTION, reward_token: "BURYBONE_BONE"},
-        {reward_amount: 9443, contract: "BuryLeash", poolId: -1, rewardShareCollection: BURRY_LEASH_COLLECTION, reward_token: "BURYLEASH_BONE"},
-        {reward_amount: 14025, contract: "TopDog", poolId: 15, rewardShareCollection: TOPDOG_COLLECTION, reward_token: "BONE_ETH_BONE"},
-        {reward_amount: 2273, contract: "TopDog", poolId: 1, rewardShareCollection: TOPDOG_COLLECTION, reward_token: "LEASH_ETH_BONE"}
+        {reward_amount: 108868, contract: "BuryShib", poolId: -1, rewardShareCollection: BURRY_SHIB_COLLECTION, reward_token: "BURYSHIB_BONE"},
+        {reward_amount: 9899, contract: "BuryBone", poolId: -1, rewardShareCollection: BURRY_BONE_COLLECTION, reward_token: "BURYBONE_BONE"},
+        {reward_amount: 9899, contract: "BuryLeash", poolId: -1, rewardShareCollection: BURRY_LEASH_COLLECTION, reward_token: "BURYLEASH_BONE"},
+        {reward_amount: 16005, contract: "TopDog", poolId: 15, rewardShareCollection: TOPDOG_COLLECTION, reward_token: "BONE_ETH_BONE"},
+        {reward_amount: 17622, contract: "TopDog", poolId: 1, rewardShareCollection: TOPDOG_COLLECTION, reward_token: "LEASH_ETH_BONE"}
     ]
     
     
