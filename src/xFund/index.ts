@@ -19,7 +19,7 @@ export default async function getDistribution(options: Options) {
 
     const WEEK = 18;
     const REWARD_WEEK = 0;
-    const REWARD_AMOUNT = 10;
+    const REWARD_AMOUNT = 30;
 
 
 
