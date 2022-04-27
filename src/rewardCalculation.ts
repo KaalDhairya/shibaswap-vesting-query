@@ -283,7 +283,7 @@ export async function getDistributionInfo( week: number, reward_week: number, re
         totalRewardsOfWeek+=RewardOfWeek
         totalLockedInWeek+=LockedThisWeek
 
-        const PREV_WEEK  = week - 1
+        const PREV_WEEK  = 11
         const filter = { "week": PREV_WEEK, "account": account, "rewardToken": reward_token }
         const lastWeekInfo = await fetchOne(USER_INFO_COLLECTION, filter)
         if(lastWeekInfo && lastWeekInfo!==null){
