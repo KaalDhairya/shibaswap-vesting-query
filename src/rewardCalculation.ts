@@ -262,6 +262,7 @@ export async function getDistributionInfo( week: number, reward_week: number, re
     let users:any[] = []
     let totalRewardsOfWeek = 0
     let totalLockedInWeek = 0
+    let totalVestedThisWeek = 0
     console.log("total users", usersA.size)
     for(var address of usersA.keys()){
         // Initialising values assuming first week
@@ -384,6 +385,7 @@ export async function getDistributionInfo( week: number, reward_week: number, re
 
     console.log("Total Rewards Of Week", totalRewardsOfWeek)
     console.log("Total Locked This Week", totalLockedInWeek)
+    console.log("Total vested this week ", totalVestedThisWeek)
     
     if(NoFile){
         console.log("DB process completed. No File will be generated")
