@@ -263,6 +263,8 @@ export async function getDistributionInfo( week: number, reward_week: number, re
     let totalRewardsOfWeek = 0
     let totalLockedInWeek = 0
     let totalVestedThisWeek = 0
+
+    const PREV_WEEK = 11;
     console.log("total users", usersA.size)
     for(var address of usersA.keys()){
         // Initialising values assuming first week
@@ -283,7 +285,7 @@ export async function getDistributionInfo( week: number, reward_week: number, re
         totalRewardsOfWeek+=RewardOfWeek
         totalLockedInWeek+=LockedThisWeek
 
-        const PREV_WEEK  = 11
+
         const filter = { "week": PREV_WEEK, "account": account, "rewardToken": reward_token }
         const lastWeekInfo = await fetchOne(USER_INFO_COLLECTION, filter)
         if(lastWeekInfo && lastWeekInfo!==null){
@@ -301,6 +303,7 @@ export async function getDistributionInfo( week: number, reward_week: number, re
                 TotalVested += VestedThisWeek               // Total vested till now
                 TotalClaimable += VestedThisWeek      // Total Claimable till now (every week's 33% + all vested reward)
                 TotalLocked -= VestedThisWeek
+                totalVestedThisWeek += VestedThisWeek
             }
             ClaimableThisWeek = TotalClaimable  - TotalClaimedTill              // Claimable of this week
             const filter2 = { "week": { $gt: reward_week }, "LockedThisWeek": { $gt: 0 }, "account": account, "rewardToken": reward_token }
@@ -339,7 +342,7 @@ export async function getDistributionInfo( week: number, reward_week: number, re
     // Users who didn't participated in the current week but have claimable or locked amount
     if(week > 1){
         console.log("Checking previous week users")
-        const prev_week_users = await fetchAll(USER_INFO_COLLECTION, {"week": week - 1, "rewardToken": reward_token})
+        const prev_week_users = await fetchAll(USER_INFO_COLLECTION, {"week": PREV_WEEK, "rewardToken": reward_token})
         const uncommon_users = prev_week_users.filter(u => !users.some(u2 => u.account == u2.account))
         // console.log("uncommon users: ", uncommon_users.length)
         for(const prev_week_user of uncommon_users) {
@@ -356,8 +359,10 @@ export async function getDistributionInfo( week: number, reward_week: number, re
             const filter2 = { "week": { $gt: reward_week }, "LockedThisWeek": { $gt: 0 }, "account": account, "rewardToken": reward_token }
             const firstLockDate = await fetchEntryBySort(USER_INFO_COLLECTION, filter2, { week: 1 })
             const TotalLocked = prev_week_user.TotalLocked - VestedThisWeek
-            // console.log(firstLockDate);
             const NextFirstLock = firstLockDate?.LockReleaseDate ?? 0
+
+            totalVestedThisWeek+=VestedThisWeek
+
             if(TotalLocked != 0 ||  ClaimableThisWeek != 0){
                 const user_obj = {
                     account : prev_week_user.account,
