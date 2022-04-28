@@ -242,11 +242,11 @@ export async function finalize(startBlock: number, endBlock: number, overwrite: 
         }
 
         // Calculate the user rewards per block for the week. This is 33% of the total reward user should get.
-        const usersA = equalRewards ? await CalculateUserEqualRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection, reward_token)
-        : await CalculateUserRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection, reward_token)
+        // const usersA = equalRewards ? await CalculateUserEqualRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection, reward_token)
+        // : await CalculateUserRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection, reward_token)
 
         const finalDistribution =  await getDistributionInfo(week, reward_week, reward_token,
-            unloack_percent, lock_percent, output_decimal, claims, NoFile, COLLECTION_TO_WRITE, usersA)
+            unloack_percent, lock_percent, output_decimal, claims, NoFile, COLLECTION_TO_WRITE, new Map())
 
         return finalDistribution
 
