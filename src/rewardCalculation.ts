@@ -242,11 +242,11 @@ export async function finalize(startBlock: number, endBlock: number, overwrite: 
         }
 
         // Calculate the user rewards per block for the week. This is 33% of the total reward user should get.
-        // const usersA = equalRewards ? await CalculateUserEqualRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection, reward_token)
-        // : await CalculateUserRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection, reward_token)
+        const usersA = equalRewards ? await CalculateUserEqualRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection, reward_token)
+        : await CalculateUserRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection, reward_token)
 
         const finalDistribution =  await getDistributionInfo(week, reward_week, reward_token,
-            unloack_percent, lock_percent, output_decimal, claims, NoFile, COLLECTION_TO_WRITE, new Map())
+            unloack_percent, lock_percent, output_decimal, claims, NoFile, COLLECTION_TO_WRITE, usersA)
 
         return finalDistribution
 
@@ -264,7 +264,7 @@ export async function getDistributionInfo( week: number, reward_week: number, re
     let totalLockedInWeek = 0
     let totalVestedThisWeek = 0
 
-    const PREV_WEEK = 11;
+    const PREV_WEEK = 11.1;
     console.log("total users", usersA.size)
     for(var address of usersA.keys()){
         // Initialising values assuming first week
