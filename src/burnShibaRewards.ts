@@ -23,7 +23,7 @@ const BURN_EVENT_TOPIC = '0x3be9da6af6db8f6aec0bb70dffbd38932712c19fa236dc1870f2
 
 // Total supply from https://coinmarketcap.com/currencies/shiba-inu/
 const TOTAL_BURNT_SHIB_SUPPLY = BigNumber.from(27698950522.0);
-const TOTAL_REWARDS_AMOUNT = BigNumber.from(254000000000000); // 254 Trillion
+const TOTAL_REWARDS_AMOUNT = BigNumber.from(2540000000000); // 2.54 Trillion
 
 
 
