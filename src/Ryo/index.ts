@@ -17,7 +17,7 @@ export default async function getDistribution(options: Options) {
     // Rewars claimed by the users till now 
 
 
-    const WEEK = 5;
+    const WEEK = 1;
     const REWARD_WEEK = 0;
     const REWARD_AMOUNT = 573000000000;   // 573 Billion
 
@@ -28,10 +28,10 @@ export default async function getDistribution(options: Options) {
     const VESTED_AMOUNT = 0;
     const INPUT_DECIMAL = 1e18;
     const OUTPUT_DECIMAL = 1e18;
-    const POOL = 25;
+    const POOL = 23;
     const LOCK_PERCENT = 0;
     const UNLOCK_PERCENT = 100;
-    const REWARD_TOKEN = "CIV"
+    const REWARD_TOKEN = "RYOSHI"
     const CONTRACT = "TopDog"
 
 

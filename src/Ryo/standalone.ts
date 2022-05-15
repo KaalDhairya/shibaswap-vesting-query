@@ -34,33 +34,33 @@ async function main() {
 
     console.log("Generating files")
 
-    if(!fs.existsSync('./outputs/CIV')) {
-        fs.mkdirSync('./outputs/CIV', { recursive: true})
+    if(!fs.existsSync('./outputs/Ryo')) {
+        fs.mkdirSync('./outputs/Ryo', { recursive: true})
     }
 
     fs.writeFileSync(
-        `./outputs/CIV/amounts-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
+        `./outputs/Ryo/amounts-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
         JSON.stringify(
             distribution.amounts, null, 1
         )
     );
 
     fs.writeFileSync(
-        `./outputs/CIV/blacklisted-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
+        `./outputs/Ryo/blacklisted-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
         JSON.stringify(
             distribution.blacklisted, null, 1
         )
     );
 
     fs.writeFileSync(
-        `./outputs/CIV/merkle-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
+        `./outputs/Ryo/merkle-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
         JSON.stringify(
             distribution.merkle, null, 1
         )
     )
 
     fs.writeFileSync(
-        `./outputs/CIV/lockInfo-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
+        `./outputs/Ryo/lockInfo-${options.startBlock}-${options.endBlock}.json`,//-${options.claimBlock}}`, - will enable when subgraph switches to mainnet
         JSON.stringify(
             distribution.lockInfo, null, 1
         )
