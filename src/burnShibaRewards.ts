@@ -5,7 +5,9 @@ const ethers = require('ethers');
 const axios = require('axios');
 import { parseBalanceMap } from './parse-balance-map';
 import { Command } from "commander";
-const { BigNumber } = ethers;
+const { BigNumber, utils } = ethers;
+
+const { getAddress } = utils
 
 import shibaSwapData from '@shibaswap/shibaswap-data-snoop';
 import { Options } from './types'
@@ -40,7 +42,7 @@ program.parse(process.argv);
 main();
 
 // Options set via command line
-const START_BLOCK = Number(program.opts().startBlock);
+const START_BLOCK = 0 // Number(program.opts().startBlock);
 const END_BLOCK = Number(program.opts().endBlock);
 
 // HTTP GET params for Etherscan requests
@@ -139,17 +141,19 @@ async function main () {
     // Combine Ryo LP rewards with ShibBurn Rewards
     const combinedMerkle = {};
     Object.keys(oldFormatBalanceMap).map((address) => {
+        const n_address = getAddress(address);
         if (Object.keys(combinedMerkle).includes(address)) {
-            combinedMerkle[address] = combinedMerkle[address].add(oldFormatBalanceMap[address]);
+            combinedMerkle[n_address] = combinedMerkle[n_address].add(oldFormatBalanceMap[address]);
         } else {
-            combinedMerkle[address] = oldFormatBalanceMap[address];
+            combinedMerkle[n_address] = oldFormatBalanceMap[address];
         }
     });
     Object.keys(distribution.amounts).map((address) => {
+        const n_address = getAddress(address);
         if (Object.keys(combinedMerkle).includes(address)) {
-            combinedMerkle[address] = combinedMerkle[address].add(distribution.amounts[address]);
+            combinedMerkle[n_address] = combinedMerkle[n_address].add(distribution.amounts[address]);
         } else {
-            combinedMerkle[address] = BigNumber.from(distribution.amounts[address]);
+            combinedMerkle[n_address] = BigNumber.from(distribution.amounts[address]);
         }
     });
 
@@ -159,6 +163,6 @@ async function main () {
     });
 
     const parsedMerkle = parseBalanceMap(combinedMerkle);
-    console.log(parsedMerkle);
+    // console.log(parsedMerkle);
     await fs.writeFileAsync(`merkle-${START_BLOCK}-${END_BLOCK}.json`, JSON.stringify(parsedMerkle, null, 1));
 };
