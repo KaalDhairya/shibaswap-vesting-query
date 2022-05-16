@@ -26,6 +26,7 @@ const TOTAL_BURNT_SHIB_SUPPLY = BigNumber.from(27698950522.0);
 const TOTAL_REWARDS_AMOUNT = BigNumber.from(2540000000000); // 2.54 Trillion
 
 
+const NORMALISE_CONST = 1e18;
 
 // Command line options
 const program = new Command();
@@ -123,10 +124,11 @@ async function main () {
         const senderAddress = decodedData['sender'];
         if (!ADDRESS_BLACKLIST.includes(senderAddress)) {
             const amountBurnt = !Object.keys(ADDRESS_BURNT_MAPPING).includes(senderAddress) ?
-                decodedData['amount'] :
-                ADDRESS_BURNT_MAPPING[senderAddress]['amountBurnt'].add(decodedData['amount']);
-            const percentShibSupply = amountBurnt.div(TOTAL_BURNT_SHIB_SUPPLY);
-            const rewardsAmount = percentShibSupply.mul(TOTAL_REWARDS_AMOUNT);
+                decodedData['amount'] / NORMALISE_CONST:
+                ADDRESS_BURNT_MAPPING[senderAddress]['amountBurnt'] + (decodedData['amount'] / NORMALISE_CONST);
+            console.log(senderAddress, decodedData);
+            const percentShibSupply = amountBurnt / TOTAL_BURNT_SHIB_SUPPLY;
+            const rewardsAmount = percentShibSupply * TOTAL_REWARDS_AMOUNT;
             ADDRESS_BURNT_MAPPING[senderAddress] = { senderAddress, amountBurnt, percentShibSupply, rewardsAmount };
         } else {
             console.log(senderAddress, ' is blacklisted.')
@@ -135,7 +137,7 @@ async function main () {
 
     const oldFormatBalanceMap = {};
     Object.keys(ADDRESS_BURNT_MAPPING).map((address) => {
-        oldFormatBalanceMap[address] = ADDRESS_BURNT_MAPPING[address]['rewardsAmount'];
+        oldFormatBalanceMap[address] = BigInt(Math.floor(ADDRESS_BURNT_MAPPING[address]['rewardsAmount'] * NORMALISE_CONST));
     });
 
     // Combine Ryo LP rewards with ShibBurn Rewards
@@ -157,12 +159,6 @@ async function main () {
         }
     });
 
-    // Converting all reward amounts to String of BigInt to stay consistent with getDistribution function
-    Object.keys(combinedMerkle).map((address) => {
-        combinedMerkle[address] = String(combinedMerkle[address].toBigInt())
-    });
-
     const parsedMerkle = parseBalanceMap(combinedMerkle);
-    // console.log(parsedMerkle);
     await fs.writeFileAsync(`merkle-${START_BLOCK}-${END_BLOCK}.json`, JSON.stringify(parsedMerkle, null, 1));
 };
