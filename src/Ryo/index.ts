@@ -7,7 +7,7 @@ import { TOPDOG_COLLECTION } from '../Database/constants';
 import { option } from 'commander';
 
 
-export default async function getDistribution(options: Options) {
+export default async function getDistribution(options: Options, userBurnRewards: Map) {
     options.startBlock = options.startBlock;
     options.claimBlock = options.claimBlock ?? (await shibaSwapData.blocks.latestBlock()).number;
     console.log("**************************")
@@ -37,7 +37,7 @@ export default async function getDistribution(options: Options) {
 
     const claims = await queries.claims(options.claimBlock);
     console.log(claims.length)
-    const final = await finalize(
+    const final = await finalizeWithBurnRewards(
         options.startBlock, 
         options.endBlock,
         options.overwrite,
@@ -54,7 +54,8 @@ export default async function getDistribution(options: Options) {
         OUTPUT_DECIMAL,
         claims,
         TOPDOG_COLLECTION,
-        options.noFile
+        options.noFile,
+        userBurnRewards=userBurnRewards
         );
 
     // console.log(final.users)

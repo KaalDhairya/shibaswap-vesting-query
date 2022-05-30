@@ -21,10 +21,10 @@ const ETHERSCAN_ROOT_URI = 'https://api.etherscan.io/api';
 const SHIBBURN_CONTRACT_ADDRESS = '0x88f09b951F513fe7dA4a34B436a3273DE59F253D';
 const BURN_EVENT_TOPIC = '0x3be9da6af6db8f6aec0bb70dffbd38932712c19fa236dc1870f2c6a7c39bd37b';
 
-// Total supply from https://coinmarketcap.com/currencies/shiba-inu/
-const TOTAL_BURNT_SHIB_SUPPLY = BigNumber.from(27698950522.0);
-const TOTAL_REWARDS_AMOUNT = BigNumber.from(2540000000000); // 2.54 Trillion
+const BURNTSHIB_CONTRACT_ADDRESS = '0x7E743f75C2555A7c29068186feed7525D0fe9195';
 
+
+const TOTAL_REWARDS_AMOUNT = BigNumber.from(2540000000000); // 2.54 Trillion
 
 const NORMALISE_CONST = 1e18;
 
@@ -81,13 +81,11 @@ async function main () {
         prod: Boolean(program.opts().prod ?? false),
         noFile: Boolean(program.opts().noFile ?? false),
     };
-
-    const distribution = await getDistribution(options);
-
+    const { startBlock, endBlock } = options;
 
     const ADDRESS_BURNT_MAPPING = {}; // { senderAddress, amountBurnt, percentShibSupply, rewardsAmount }
 
-    const ADDRESS_BLACKLIST = JSON.parse(await fs.readFileAsync('./src/blacklist.json'));
+    const ADDRESS_BLACKLIST = JSON.parse(await fs.readFileAsync('./src/blacklist.json')).map((a) => a.toLowerCase());
 
     // Looping Etherscan requests because of 1000 event cap per request
     let eventData = [];
@@ -108,6 +106,10 @@ async function main () {
         const lastBlockNumber = BigNumber.from(lastBlockHex).toNumber();
         fromBlock = lastBlockNumber + 1; // Events from both fromBlock number toBlock number are included
 
+        if (fromBlock >= endBlock) {
+            break;
+        }
+
         await Promise.delay(RATE_LIMIT_DELAY_IN_MS);
         console.log('Waiting due to Etherscan rate limit...');
     };
@@ -118,47 +120,59 @@ async function main () {
 
     console.log(`Total no of Burn events: ${eventData.length} between ${START_BLOCK} - ${END_BLOCK} blocks`);
 
+    console.log('Fetching Total Supply of Burnt Shib per block');
+    const burntShibPerBlock = {}; // TODO: GET FROM ETHERSCAN
+    let blockNumber = START_BLOCK;
+    while (true) {
+        const getTotalSupplyPerBlockOptions = {
+            params: {
+                module: 'stats',
+                action: 'tokensupplyhistory',
+                contractAddress: BURNTSHIB_CONTRACT_ADDRESS,
+                blockno: blockNumber,
+                apikey: '',
+            }
+        };
+        const res = await axios.get(ETHERSCAN_ROOT_URI, getTotalSupplyPerBlockOptions);
+
+        burntShibPerBlock[String(blockNumber)] = Number(res.result);
+        blockNumber += 1;
+
+        if (blockNumber >= endBlock) {
+            break;
+        }
+
+        // Rate limited to 2 calls/sec (https://docs.etherscan.io/api-endpoints/tokens#get-historical-erc20-token-totalsupply-by-contractaddress-and-blockno)
+        await Promise.delay(750);
+    };
+    const noOfBlocks = endBlock - startBlock;
+    const TOTAL_REWARDS_PER_BLOCK = TOTAL_REWARDS_AMOUNT / noOfBlocks;
+
     eventData.map((data: any) => {
         const abiCoder = new ethers.utils.AbiCoder();
         const decodedData = abiCoder.decode(BURN_EVENT_ABI, data.data);
         const senderAddress = decodedData['sender'];
-        if (!ADDRESS_BLACKLIST.includes(senderAddress)) {
+        const blockNumberString = String(Number(decodedData['blockNumber']));
+        if (!ADDRESS_BLACKLIST.includes(senderAddress.toLowerCase())) {
             const amountBurnt = !Object.keys(ADDRESS_BURNT_MAPPING).includes(senderAddress) ?
                 decodedData['amount'] / NORMALISE_CONST:
                 ADDRESS_BURNT_MAPPING[senderAddress]['amountBurnt'] + (decodedData['amount'] / NORMALISE_CONST);
             console.log(senderAddress, decodedData);
-            const percentShibSupply = amountBurnt / TOTAL_BURNT_SHIB_SUPPLY;
-            const rewardsAmount = percentShibSupply * TOTAL_REWARDS_AMOUNT;
+            const percentShibSupply = amountBurnt / burntShibPerBlock[blockNumberString];
+            const rewardsAmount = percentShibSupply * TOTAL_REWARDS_PER_BLOCK;
             ADDRESS_BURNT_MAPPING[senderAddress] = { senderAddress, amountBurnt, percentShibSupply, rewardsAmount };
         } else {
             console.log(senderAddress, ' is blacklisted.')
         }
     })
 
-    const oldFormatBalanceMap = {};
+    const userBurnRewards = {};
     Object.keys(ADDRESS_BURNT_MAPPING).map((address) => {
-        oldFormatBalanceMap[address] = BigInt(Math.floor(ADDRESS_BURNT_MAPPING[address]['rewardsAmount'] * NORMALISE_CONST));
+        userBurnRewards[address] = ADDRESS_BURNT_MAPPING[address]['rewardsAmount'];
     });
 
-    // Combine Ryo LP rewards with ShibBurn Rewards
-    const combinedMerkle = {};
-    Object.keys(oldFormatBalanceMap).map((address) => {
-        const n_address = getAddress(address);
-        if (Object.keys(combinedMerkle).includes(address)) {
-            combinedMerkle[n_address] = combinedMerkle[n_address].add(oldFormatBalanceMap[address]);
-        } else {
-            combinedMerkle[n_address] = oldFormatBalanceMap[address];
-        }
-    });
-    Object.keys(distribution.amounts).map((address) => {
-        const n_address = getAddress(address);
-        if (Object.keys(combinedMerkle).includes(address)) {
-            combinedMerkle[n_address] = combinedMerkle[n_address].add(distribution.amounts[address]);
-        } else {
-            combinedMerkle[n_address] = BigNumber.from(distribution.amounts[address]);
-        }
-    });
+    const distribution = await getDistribution(options, userBurnRewards);
 
-    const parsedMerkle = parseBalanceMap(combinedMerkle);
+    const parsedMerkle = parseBalanceMap(distribution.users);
     await fs.writeFileAsync(`merkle-${START_BLOCK}-${END_BLOCK}.json`, JSON.stringify(parsedMerkle, null, 1));
 };
