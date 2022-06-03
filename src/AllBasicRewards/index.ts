@@ -17,7 +17,7 @@ export default async function getDistribution(options: Options) {
 
 
     const WEEK = 13;
-    const REWARD_WEEK = 2;
+    const REWARD_WEEK = 3;
 
     const rewardsOfWeek = [
         {reward_amount: 98078, contract: "BuryShib", poolId: -1, rewardShareCollection: BURRY_SHIB_COLLECTION, reward_token: "BURYSHIB_BONE"},
