@@ -264,7 +264,7 @@ export async function getDistributionInfo( week: number, reward_week: number, re
     let totalLockedInWeek = 0
     let totalVestedThisWeek = 0
 
-    const PREV_WEEK = 11.1;
+    const PREV_WEEK = week - 1;
     console.log("total users", usersA.size)
     for(var address of usersA.keys()){
         // Initialising values assuming first week
