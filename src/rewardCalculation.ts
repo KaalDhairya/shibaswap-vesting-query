@@ -252,6 +252,59 @@ export async function finalize(startBlock: number, endBlock: number, overwrite: 
 
 }
 
+export async function finalizeWithBurnRewards(startBlock: number, endBlock: number, overwrite: boolean, prod: boolean,
+    reward_amount: number, week: number, reward_week: number, reward_token: String, 
+    contract, poolId, unloack_percent, lock_percent, input_decimal, output_decimal, claims, rewardShareCollection, NoFile,
+    equalRewards = false, userBurnRewards: Map = new Map()){
+        if(week !== 1 && (!claims || typeof claims === 'undefined' || claims.length === 0)){
+            console.error("No claims recieved")
+            return {
+                users: {},
+                blacklisted: {},
+                lockInfo: {}
+            }
+        }
+    
+        let COLLECTION_TO_WRITE = USER_INFO_COLLECTION
+        if(!prod){
+            var nowDate = new Date(); 
+            var date = nowDate.getDate()+'/'+(nowDate.getMonth()+1)+'/'+nowDate.getFullYear(); 
+            COLLECTION_TO_WRITE = USER_INFO_COLLECTION+"_week_"+week+"_"+date
+        }
+    
+        if(!overwrite){
+            const filter = { "week": week, "rewardToken": reward_token }
+            const checkdup = await fetchOne(COLLECTION_TO_WRITE, filter)
+            if(checkdup && checkdup != null){
+                console.error("Entries already present for the reward of the week. Are you sure you want to overwrite? If so pass -ow")
+                return {
+                    users: {},
+                    blacklisted: {},
+                    lockInfo: {}
+                }
+            }
+        }
+
+        // Calculate the user rewards per block for the week. This is 33% of the total reward user should get.
+        const usersA = equalRewards ? await CalculateUserEqualRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection, reward_token)
+        : await CalculateUserRewards(startBlock, endBlock, reward_amount, contract, poolId, rewardShareCollection, reward_token)
+
+        // Add Burn rewards on top of SSLP rewards
+        for (const [userAcc, userR] of userBurnRewards) {
+            if (usersA.keys().includes(userAcc)) {
+                usersA.set(userAcc, userR + usersA.get(userAcc))
+            } else {
+                usersA.set(userAcc, userR)
+            }
+        }
+
+        const finalDistribution =  await getDistributionInfo(week, reward_week, reward_token,
+            unloack_percent, lock_percent, output_decimal, claims, NoFile, COLLECTION_TO_WRITE, usersA)
+
+        return finalDistribution
+
+}
+
 
 
 export async function getDistributionInfo( week: number, reward_week: number, reward_token: String,
