@@ -10,6 +10,7 @@
   "dependencies": {
     "@sushiswap/sushi-data": "lufycz/sushi-data#vesting",
     "axios": "^0.21.1",
+    "big-integer": "^1.6.51",
     "commander": "^7.0.0",
     "ethereumjs-util": "^7.0.8",
     "ethers": "^5.0.31",

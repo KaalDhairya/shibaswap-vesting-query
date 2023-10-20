@@ -340,8 +340,7 @@
 
 "@sushiswap/sushi-data@lufycz/sushi-data#vesting":
   version "1.0.6"
-  resolved "https://codeload.github.com/lufycz/sushi-data/tar.gz/381fb528d5f1676bcc95482286c20fe6c50e9b42"
-  integrity sha512-T7PyIVUCGLHdfikH1LurG+B2o4udh+Cesh627f0nx+l+3L3ynNzsf5blqHLQ0DsS5GNnyK3svLrd9HXjYoMbPg==
+  resolved "git+ssh://git@github.com/lufycz/sushi-data.git#381fb528d5f1676bcc95482286c20fe6c50e9b42"
   dependencies:
     bluebird "^3.7.2"
     commander "6.1.0"
@@ -424,6 +423,11 @@ bech32@1.1.4:
   version "1.1.4"
   resolved "https://registry.npmjs.org/bech32/-/bech32-1.1.4.tgz"
   integrity sha512-s0IrSOzLlbvX7yp4WBfPITzpAU8sqQcpsmwXDiKwrG4r491vwCO/XpejasRNl0piBMe/DvP4Tz0mIS/X1DPJBQ==
+
+big-integer@^1.6.51:
+  version "1.6.51"
+  resolved "https://registry.npmjs.org/big-integer/-/big-integer-1.6.51.tgz"
+  integrity sha512-GPEid2Y9QU1Exl1rpO9B2IPJGHPSupF5GnVIP0blYvNOMer2bTvSWs1jGOUg04hTmu67nmLsQ9TBo1puaotBHg==
 
 blakejs@^1.1.0:
   version "1.1.0"
@@ -703,7 +707,7 @@ form-data@^3.0.0:
 fs@^0.0.1-security:
   version "0.0.1-security"
   resolved "https://registry.npmjs.org/fs/-/fs-0.0.1-security.tgz"
-  integrity sha1-invTcYa23d84E/I4WLV+yq9eQdQ= sha512-3XY9e1pP0CVEUCdj5BmfIZxRBTSDycnbqhIOGec9QYtmVH2fbLpj86CFWkrNOkt/Fvty4KZG5lTglL9j/gJ87w==
+  integrity sha512-3XY9e1pP0CVEUCdj5BmfIZxRBTSDycnbqhIOGec9QYtmVH2fbLpj86CFWkrNOkt/Fvty4KZG5lTglL9j/gJ87w==
 
 "graph-results-pager@https://github.com/LufyCZ/graph-results-pager":
   version "1.0.3"
